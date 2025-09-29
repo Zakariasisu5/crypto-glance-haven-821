@@ -26,6 +26,7 @@ module.exports = {
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
+          glow: "hsl(var(--primary-glow))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -50,6 +51,12 @@ module.exports = {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+        },
+        creditcoin: {
+          blue: "hsl(var(--creditcoin-blue))",
+          purple: "hsl(var(--creditcoin-purple))",
+          dark: "hsl(var(--creditcoin-dark))",
+          card: "hsl(var(--creditcoin-card))",
         },
       },
       borderRadius: {
