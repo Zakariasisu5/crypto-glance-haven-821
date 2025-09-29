@@ -8,14 +8,38 @@ import { Star } from 'lucide-react';
 import { toast } from "sonner";
 
 const fetchAssetDetails = async (id) => {
-  const [assetResponse, historyResponse] = await Promise.all([
-    axios.get(`https://api.coincap.io/v2/assets/${id}`),
-    axios.get(`https://api.coincap.io/v2/assets/${id}/history?interval=d1`)
-  ]);
-  return {
-    asset: assetResponse.data.data,
-    history: historyResponse.data.data
-  };
+  try {
+    // Use CoinGecko API for asset details
+    const [assetResponse, historyResponse] = await Promise.all([
+      axios.get(`https://api.coingecko.com/api/v3/coins/${id}`),
+      axios.get(`https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=usd&days=30`)
+    ]);
+    
+    const asset = assetResponse.data;
+    const historyData = historyResponse.data.prices.map(([timestamp, price]) => ({
+      time: timestamp,
+      priceUsd: price.toString()
+    }));
+    
+    // Transform asset data to match previous structure
+    return {
+      asset: {
+        id: asset.id,
+        rank: asset.market_cap_rank,
+        name: asset.name,
+        symbol: asset.symbol.toUpperCase(),
+        priceUsd: asset.market_data.current_price.usd.toString(),
+        marketCapUsd: asset.market_data.market_cap.usd.toString(),
+        changePercent24Hr: asset.market_data.price_change_percentage_24h?.toString() || '0',
+        volumeUsd24Hr: asset.market_data.total_volume.usd.toString(),
+        description: asset.description.en
+      },
+      history: historyData
+    };
+  } catch (error) {
+    console.error('Error fetching asset details:', error);
+    throw error;
+  }
 };
 
 const AssetDetails = () => {

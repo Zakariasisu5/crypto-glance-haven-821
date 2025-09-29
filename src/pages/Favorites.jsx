@@ -6,9 +6,25 @@ import { Star } from 'lucide-react';
 import { toast } from "sonner";
 
 const fetchFavoriteCryptos = async (favorites) => {
-  const requests = favorites.map(id => axios.get(`https://api.coincap.io/v2/assets/${id}`));
-  const responses = await Promise.all(requests);
-  return responses.map(response => response.data.data);
+  try {
+    // Use CoinGecko API for favorites as well
+    const coinIds = favorites.join(',');
+    const response = await axios.get(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${coinIds}&order=market_cap_desc&per_page=250`);
+    
+    // Transform data to match previous structure
+    return response.data.map(coin => ({
+      id: coin.id,
+      rank: coin.market_cap_rank,
+      name: coin.name,
+      symbol: coin.symbol.toUpperCase(),
+      priceUsd: coin.current_price.toString(),
+      marketCapUsd: coin.market_cap.toString(),
+      changePercent24Hr: coin.price_change_percentage_24h?.toString() || '0'
+    }));
+  } catch (error) {
+    console.error('Error fetching favorite cryptos:', error);
+    throw error;
+  }
 };
 
 const Favorites = () => {

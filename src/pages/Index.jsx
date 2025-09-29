@@ -7,8 +7,27 @@ import { Link } from 'react-router-dom';
 import { toast } from "sonner";
 
 const fetchCryptos = async () => {
-  const response = await axios.get('https://api.coincap.io/v2/assets');
-  return response.data.data;
+  try {
+    console.log('Fetching crypto data...');
+    // Using CoinGecko API which has better CORS support
+    const response = await axios.get('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1');
+    console.log('Crypto data fetched successfully:', response.data);
+    
+    // Transform data to match previous structure
+    return response.data.map(coin => ({
+      id: coin.id,
+      rank: coin.market_cap_rank,
+      name: coin.name,
+      symbol: coin.symbol.toUpperCase(),
+      priceUsd: coin.current_price.toString(),
+      marketCapUsd: coin.market_cap.toString(),
+      changePercent24Hr: coin.price_change_percentage_24h?.toString() || '0'
+    }));
+  } catch (error) {
+    console.error('Error fetching crypto data:', error);
+    console.error('Error details:', error.response || error.message);
+    throw error;
+  }
 };
 
 const Index = () => {
