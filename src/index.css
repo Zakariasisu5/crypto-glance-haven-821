@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+ 
+@layer base {
+  :root {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+
+    --card: 0 0% 5%;
+    --card-foreground: 0 0% 100%;
+ 
+    --popover: 0 0% 5%;
+    --popover-foreground: 0 0% 100%;
+ 
+    --primary: 120 100% 50%;
+    --primary-foreground: 0 0% 0%;
+ 
+    --secondary: 180 100% 50%;
+    --secondary-foreground: 0 0% 0%;
+ 
+    --muted: 0 0% 20%;
+    --muted-foreground: 0 0% 80%;
+ 
+    --accent: 300 100% 50%;
+    --accent-foreground: 0 0% 0%;
+ 
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 120 100% 50%;
+ 
+    --radius: 0.5rem;
+  }
+}
+ 
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Fira Code', monospace;
+  }
+}
+
+.terminal-glow {
+  text-shadow: 0 0 5px theme('colors.primary.DEFAULT'), 0 0 10px theme('colors.primary.DEFAULT');
+}
+
+.terminal-table {
+  @apply border-collapse w-full;
+}
+
+.terminal-table th,
+.terminal-table td {
+  @apply border border-muted p-2;
+}
+
+.terminal-table th {
+  @apply bg-muted text-muted-foreground;
+}
+
+.terminal-input {
+  @apply bg-card text-foreground border-muted focus:border-primary focus:ring-primary;
+}
