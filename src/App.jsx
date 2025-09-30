@@ -1,6 +1,5 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SupabaseAuthProvider } from "./integrations/supabase/auth";
 import { routes } from "./nav-items";
@@ -10,14 +9,11 @@ import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-const queryClient = new QueryClient();
-
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <SupabaseAuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <BrowserRouter>
+  <SupabaseAuthProvider>
+    <TooltipProvider>
+      <Toaster />
+      <BrowserRouter>
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
@@ -41,11 +37,10 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </SupabaseAuthProvider>
-  </QueryClientProvider>
+        </Routes>
+      </BrowserRouter>
+    </TooltipProvider>
+  </SupabaseAuthProvider>
 );
 
 export default App;
