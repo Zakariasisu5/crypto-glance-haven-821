@@ -1,77 +1,161 @@
-# Welcome to your GPT Engineer project
+### MoonFi – Decentralized Credit & Lending
 
-## Project info
+MoonFi is a Creditcoin-inspired DeFi platform that combines blockchain credit profiles with lending pools, enabling users to borrow and lend based on their on-chain reputation.
 
-**Project**: crypto-glance-haven 
+The project bridges real-world crypto market data with mock + blockchain-based Creditcoin data, creating a powerful platform for transparent financial inclusion.
 
-**URL**: https://run.gptengineer.app/projects/REPLACE_WITH_PROJECT_ID/improve
 
-**Description**: buildl a crypto traccker app, use coincap api 
+---
 
-## Who is the owner of this repository?
-By default, GPT Engineer projects are created with public GitHub repositories.
+✨ Features
 
-However, you can easily transfer the repository to your own GitHub account by navigating to your [GPT Engineer project](https://run.gptengineer.app/projects/REPLACE_WITH_PROJECT_ID/improve) and selecting Settings -> GitHub. 
+🔹 Smart Contracts
 
-## How can I edit this code?
-There are several ways of editing your application.
+CreditProfile.sol
 
-**Use GPT Engineer**
+Track wallet-based credit scores.
 
-Simply visit the GPT Engineer project at [GPT Engineer](https://run.gptengineer.app/projects/REPLACE_WITH_PROJECT_ID/improve) and start prompting.
+Store loan history (amount, interest, repayment status).
 
-Changes made via gptengineer.app will be committed automatically to this repo.
+Update scores and record repayments.
 
-**Use your preferred IDE**
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in the GPT Engineer UI.
+LendingPool.sol
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Deposit ETH into the pool.
 
-Follow these steps: 
+Borrow from the pool (later tied to credit score).
 
-```sh
-git clone https://github.com/GPT-Engineer-App/crypto-glance-haven.git
-cd crypto-glance-haven
-npm i
+Repay borrowed funds.
 
-# This will run a dev server with auto reloading and an instant preview.
+Withdraw deposits anytime.
+
+
+
+🔹 Backend (Node.js + Supabase)
+
+Fetch live crypto market data from CoinGecko.
+
+Provide mock Creditcoin DeFi data (price, users, lending rates).
+
+Auth system (signup/signin) with Supabase.
+
+Clean API responses in { success, data } format.
+
+
+🔹 Frontend (Next.js Dashboard)
+
+Landing page with testimonials & trusted companies section.
+
+Auth (sign in / sign up before dashboard).
+
+Dashboard with graphs & trends.
+
+Wallet connection for blockchain integration.
+
+
+
+---
+
+📂 Project Structure
+
+moonfi/
+│── contracts/          # Solidity smart contracts
+│   ├── CreditProfile.sol
+│   └── LendingPool.sol
+│── backend/            # Node.js + Express API
+│   ├── routes/
+│   ├── services/
+│   └── server.js
+│── frontend/           # Next.js frontend
+│   ├── pages/
+│   ├── components/
+│   └── styles/
+│── scripts/
+│   └── deploy.js       # Hardhat deployment script
+│── hardhat.config.js   # Hardhat config
+
+
+---
+
+🚀 Quick Start
+
+1. Clone Repo
+
+git clone https://github.com/<your-username>/moonfi.git
+cd moonfi
+
+2. Install Dependencies
+
+npm install
+
+3. Compile Smart Contracts
+
+npx hardhat compile
+
+4. Deploy Contracts
+
+npx hardhat run scripts/deploy.js --network localhost
+
+5. Start Backend Server
+
+cd backend
+npm start
+
+6. Run Frontend
+
+cd frontend
 npm run dev
-```
 
-**Edit a file directly in GitHub**
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+---
 
-**Use GitHub Codespaces**
+🛠️ Tech Stack
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Frontend: Next.js, TailwindCSS, Wallet integration
 
-## What technologies are used for this project?
+Backend: Node.js, Express, Supabase, CoinGecko API
 
-This project is built with .
+Blockchain: Solidity, Hardhat, Ethers.js
 
-- Vite
-- React
-- shadcn-ui
-- Tailwind CSS
+Database: Supabase (Postgres)
 
-## How can I deploy this project?
 
-All GPT Engineer projects can be deployed directly via the GPT Engineer app. 
 
-Simply visit your project at [GPT Engineer](https://run.gptengineer.app/projects/REPLACE_WITH_PROJECT_ID/improve) and click on Share -> Publish.
+---
 
-## I want to use a custom domain - is that possible?
+📌 Roadmap
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain, then we recommend GitHub Pages.
+✅ Phase 1: Smart contracts (CreditProfile + LendingPool).
 
-To use GitHub Pages you will need to follow these steps: 
-- Deploy your project using GitHub Pages - instructions [here](https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site#creating-your-site)
-- Configure a custom domain for your GitHub Pages site - instructions [here](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site)
+✅ Phase 2: Backend API with mock Creditcoin + market data.
+
+✅ Phase 3: Frontend dashboard + landing page.
+
+🔜 Phase 4: Integrate smart contracts with frontend (wallet login).
+
+🔜 Phase 5: Deploy to Polygon testnet + Creditcoin chain.
+
+
+
+---
+
+🤝 Contribution
+
+We welcome contributions!
+
+Fork the repo
+
+Create a feature branch
+
+Commit changes
+
+Submit a Pull Request 🚀
+
+
+
+---
+
+📄 License
+
+MIT License © 2025 MoonFi
