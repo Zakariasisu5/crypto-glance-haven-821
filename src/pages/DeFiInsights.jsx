@@ -2,18 +2,18 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import StatsCard from '@/components/StatsCard';
-import { mockCreditcoinData } from '@/data/mockData';
+import { mockMoonFIData } from '@/data/mockData';
 import { TrendingUp, DollarSign, Users, Droplets } from 'lucide-react';
 
 const DeFiInsights = () => {
-  const { defiInsights } = mockCreditcoinData;
+  const { defiInsights } = mockMoonFIData;
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold creditcoin-glow">DeFi Insights</h1>
+        <h1 className="text-3xl font-bold moonfi-glow">DeFi Insights</h1>
         <div className="text-sm text-muted-foreground">
-          Creditcoin lending & borrowing ecosystem
+          MoonFI lending & borrowing ecosystem
         </div>
       </div>
 

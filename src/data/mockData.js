@@ -1,6 +1,6 @@
-// Mock data for Creditcoin dashboard
+// Mock data for MoonFI dashboard
 
-export const mockCreditcoinData = {
+export const mockMoonFIData = {
   defiInsights: {
     lendingRate: 5.2,
     borrowingRate: 7.8,

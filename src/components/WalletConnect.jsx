@@ -35,7 +35,7 @@ const WalletConnect = () => {
   }
 
   return (
-    <Button onClick={handleConnect} className="btn-creditcoin">
+    <Button onClick={handleConnect} className="btn-moonfi">
       <Wallet className="h-4 w-4 mr-2" />
       Connect Wallet
     </Button>

@@ -69,7 +69,7 @@ const Index = () => {
   );
 
   useEffect(() => {
-    const text = "Welcome to Creditcoin Moonshot Universe...";
+    const text = "Welcome to MoonFI Moonshot Universe...";
     let i = 0;
     const typingEffect = setInterval(() => {
       if (i < text.length) {
@@ -83,11 +83,11 @@ const Index = () => {
     return () => clearInterval(typingEffect);
   }, []);
 
-  if (isLoading) return <div className="text-center mt-8 creditcoin-glow">Loading...</div>;
-  if (isError) return <div className="text-center mt-8 creditcoin-glow text-destructive">Error: Unable to fetch crypto data</div>;
+  if (isLoading) return <div className="text-center mt-8 moonfi-glow">Loading...</div>;
+  if (isError) return <div className="text-center mt-8 moonfi-glow text-destructive">Error: Unable to fetch crypto data</div>;
 
-  // Get Creditcoin data if available
-  const creditcoin = cryptos?.find(crypto => crypto.id === 'creditcoin' || crypto.symbol === 'CTC');
+  // Get MoonFI data if available
+  const moonfi = cryptos?.find(crypto => crypto.id === 'creditcoin' || crypto.symbol === 'CTC');
   const bitcoin = cryptos?.find(crypto => crypto.id === 'bitcoin');
   const ethereum = cryptos?.find(crypto => crypto.id === 'ethereum');
 
@@ -95,7 +95,7 @@ const Index = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold creditcoin-glow">Creditcoin Dashboard</h1>
+          <h1 className="text-3xl font-bold moonfi-glow">MoonFI Dashboard</h1>
           <p className="text-muted-foreground font-mono">{terminalText}</p>
         </div>
       </div>
@@ -116,11 +116,11 @@ const Index = () => {
           icon={Activity}
         />
         <StatsCard
-          title="Creditcoin Price"
-          value={creditcoin ? `$${parseFloat(creditcoin.priceUsd).toFixed(4)}` : '$0.5847'}
+          title="MoonFI Price"
+          value={moonfi ? `$${parseFloat(moonfi.priceUsd).toFixed(4)}` : '$0.5847'}
           description="CTC current price"
           icon={TrendingUp}
-          trend={creditcoin ? parseFloat(creditcoin.changePercent24Hr) : 8.4}
+          trend={moonfi ? parseFloat(moonfi.changePercent24Hr) : 8.4}
         />
         <StatsCard
           title="DeFi Users"
@@ -134,7 +134,7 @@ const Index = () => {
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>
           <TabsTrigger value="overview">Market Overview</TabsTrigger>
-          <TabsTrigger value="creditcoin">Creditcoin Trends</TabsTrigger>
+          <TabsTrigger value="moonfi">MoonFI Trends</TabsTrigger>
           <TabsTrigger value="search">Asset Search</TabsTrigger>
         </TabsList>
 
@@ -192,10 +192,10 @@ const Index = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="creditcoin" className="space-y-4">
+        <TabsContent value="moonfi" className="space-y-4">
           <Card className="card-glow">
             <CardHeader>
-              <CardTitle>Creditcoin Performance</CardTitle>
+              <CardTitle>MoonFI Performance</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -203,22 +203,22 @@ const Index = () => {
                   <div className="p-4 bg-muted/50 rounded-lg">
                     <p className="text-sm text-muted-foreground">Current Price</p>
                     <p className="text-2xl font-bold">
-                      {creditcoin ? `$${parseFloat(creditcoin.priceUsd).toFixed(4)}` : '$0.5847'}
+                      {moonfi ? `$${parseFloat(moonfi.priceUsd).toFixed(4)}` : '$0.5847'}
                     </p>
-                    <p className={`text-sm ${(creditcoin ? parseFloat(creditcoin.changePercent24Hr) : 8.4) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                      {creditcoin ? `${parseFloat(creditcoin.changePercent24Hr).toFixed(2)}%` : '+8.4%'} (24h)
+                    <p className={`text-sm ${(moonfi ? parseFloat(moonfi.changePercent24Hr) : 8.4) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      {moonfi ? `${parseFloat(moonfi.changePercent24Hr).toFixed(2)}%` : '+8.4%'} (24h)
                     </p>
                   </div>
                   <div className="p-4 bg-muted/50 rounded-lg">
                     <p className="text-sm text-muted-foreground">Market Cap</p>
                     <p className="text-xl font-bold">
-                      {creditcoin ? `$${(parseFloat(creditcoin.marketCapUsd) / 1e6).toFixed(1)}M` : '$45.2M'}
+                      {moonfi ? `$${(parseFloat(moonfi.marketCapUsd) / 1e6).toFixed(1)}M` : '$45.2M'}
                     </p>
                   </div>
                 </div>
                 <div className="text-center py-8 text-muted-foreground">
                   <TrendingUp className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                  <p>Creditcoin chart integration</p>
+                  <p>MoonFI chart integration</p>
                   <p className="text-sm mt-2">Real-time price tracking coming soon</p>
                 </div>
               </div>

@@ -16,7 +16,7 @@ const Sidebar = () => {
   return (
     <aside className="w-64 bg-card border-r border-border p-4">
       <div className="mb-8">
-        <h2 className="text-2xl font-bold creditcoin-glow">Creditcoin</h2>
+        <h2 className="text-2xl font-bold moonfi-glow">MoonFI</h2>
         <p className="text-sm text-muted-foreground">Moonshot Universe</p>
       </div>
       

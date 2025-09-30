@@ -72,7 +72,7 @@ const Auth = () => {
         <Card className="card-glow">
           <CardHeader className="space-y-1">
             <div className="flex justify-center mb-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-creditcoin-blue to-creditcoin-purple flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-moonfi-blue to-moonfi-purple flex items-center justify-center">
                 <span className="text-white font-bold text-xl">C</span>
               </div>
             </div>
@@ -112,7 +112,7 @@ const Auth = () => {
               </div>
               <Button 
                 type="submit" 
-                className="w-full btn-creditcoin" 
+                className="w-full btn-moonfi" 
                 disabled={loading}
               >
                 {loading ? 'Loading...' : (isSignUp ? 'Sign Up' : 'Sign In')}

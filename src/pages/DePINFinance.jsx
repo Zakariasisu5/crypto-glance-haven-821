@@ -2,11 +2,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import StatsCard from '@/components/StatsCard';
-import { mockCreditcoinData, mockChartData } from '@/data/mockData';
+import { mockMoonFIData, mockChartData } from '@/data/mockData';
 import { Zap, Sun, Wifi, Car, DollarSign, TrendingUp, Users } from 'lucide-react';
 
 const DePINFinance = () => {
-  const { depinFinance } = mockCreditcoinData;
+  const { depinFinance } = mockMoonFIData;
   const { depinGrowth } = mockChartData;
 
   const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))', 'hsl(var(--muted))'];
@@ -21,7 +21,7 @@ const DePINFinance = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold creditcoin-glow">DePIN Finance</h1>
+        <h1 className="text-3xl font-bold moonfi-glow">DePIN Finance</h1>
         <div className="text-sm text-muted-foreground">
           Financing the decentralized physical infrastructure
         </div>

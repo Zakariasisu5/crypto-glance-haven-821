@@ -7,7 +7,7 @@
  
 @layer base {
   :root {
-    /* Creditcoin Dark Theme */
+    /* MoonFI Dark Theme */
     --background: 210 15% 4%;
     --foreground: 0 0% 98%;
 
@@ -17,19 +17,19 @@
     --popover: 210 15% 6%;
     --popover-foreground: 0 0% 98%;
  
-    /* Creditcoin Blue Primary */
+    /* MoonFI Blue Primary */
     --primary: 212 100% 65%;
     --primary-foreground: 210 15% 4%;
     --primary-glow: 212 100% 75%;
  
-    /* Creditcoin Purple Secondary */
+    /* MoonFI Purple Secondary */
     --secondary: 270 95% 75%;
     --secondary-foreground: 210 15% 4%;
  
     --muted: 210 15% 12%;
     --muted-foreground: 215 16% 65%;
  
-    /* Creditcoin Accent Purple */
+    /* MoonFI Accent Purple */
     --accent: 270 95% 75%;
     --accent-foreground: 210 15% 4%;
  
@@ -42,11 +42,11 @@
  
     --radius: 0.75rem;
 
-    /* Creditcoin Custom Colors */
-    --creditcoin-blue: 212 100% 65%;
-    --creditcoin-purple: 270 95% 75%;
-    --creditcoin-dark: 210 15% 4%;
-    --creditcoin-card: 210 15% 6%;
+    /* MoonFI Custom Colors */
+    --moonfi-blue: 212 100% 65%;
+    --moonfi-purple: 270 95% 75%;
+    --moonfi-dark: 210 15% 4%;
+    --moonfi-card: 210 15% 6%;
     
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
@@ -75,7 +75,7 @@
 }
 
 @layer components {
-  .creditcoin-glow {
+  .moonfi-glow {
     text-shadow: 0 0 10px hsl(var(--primary) / 0.6);
   }
   
@@ -100,12 +100,12 @@
     background: var(--gradient-accent);
   }
   
-  .btn-creditcoin {
+  .btn-moonfi {
     @apply bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300;
     box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
   }
   
-  .btn-creditcoin:hover {
+  .btn-moonfi:hover {
     box-shadow: 0 0 30px hsl(var(--primary) / 0.5);
     transform: translateY(-1px);
   }

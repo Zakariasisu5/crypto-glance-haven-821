@@ -27,7 +27,7 @@ const Landing = () => {
       name: "Sarah Chen",
       role: "DeFi Investor",
       image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop",
-      text: "Creditcoin revolutionized how I access credit in DeFi. The platform is intuitive and secure."
+      text: "MoonFI revolutionized how I access credit in DeFi. The platform is intuitive and secure."
     },
     {
       name: "Marcus Rodriguez",
@@ -45,7 +45,7 @@ const Landing = () => {
       name: "James Wilson",
       role: "Fintech Entrepreneur",
       image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop",
-      text: "Creditcoin's lending rates are competitive and the credit profiles are game-changing."
+      text: "MoonFI's lending rates are competitive and the credit profiles are game-changing."
     },
     {
       name: "Elena Kowalski",
@@ -56,12 +56,12 @@ const Landing = () => {
   ];
 
   const trustedCompanies = [
-    { name: "Binance", logo: "https://cryptologos.cc/logos/bnb-bnb-logo.svg?v=029" },
-    { name: "Coinbase", logo: "https://cryptologos.cc/logos/coinbase-coin-logo.svg?v=029" },
-    { name: "Chainlink", logo: "https://cryptologos.cc/logos/chainlink-link-logo.svg?v=029" },
-    { name: "Polygon", logo: "https://cryptologos.cc/logos/polygon-matic-logo.svg?v=029" },
-    { name: "Avalanche", logo: "https://cryptologos.cc/logos/avalanche-avax-logo.svg?v=029" },
-    { name: "Solana", logo: "https://cryptologos.cc/logos/solana-sol-logo.svg?v=029" }
+    { name: "Binance", symbol: "BNB" },
+    { name: "Ethereum", symbol: "ETH" },
+    { name: "Chainlink", symbol: "LINK" },
+    { name: "Polygon", symbol: "MATIC" },
+    { name: "Avalanche", symbol: "AVAX" },
+    { name: "Solana", symbol: "SOL" }
   ];
 
   return (
@@ -70,16 +70,16 @@ const Landing = () => {
       <nav className="border-b border-border/40 backdrop-blur-sm fixed w-full z-50 bg-background/80">
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-creditcoin-blue to-creditcoin-purple flex items-center justify-center">
-              <span className="text-white font-bold text-sm">C</span>
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-moonfi-blue to-moonfi-purple flex items-center justify-center">
+              <span className="text-white font-bold text-sm">M</span>
             </div>
-            <span className="text-xl font-bold creditcoin-glow">Creditcoin</span>
+            <span className="text-xl font-bold moonfi-glow">MoonFI</span>
           </div>
           <div className="flex gap-3">
             <Button variant="outline" onClick={() => navigate('/auth')}>
               Sign In
             </Button>
-            <Button className="btn-creditcoin" onClick={() => navigate('/auth')}>
+            <Button className="btn-moonfi" onClick={() => navigate('/auth')}>
               Sign Up
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
@@ -94,7 +94,7 @@ const Landing = () => {
             <span className="text-sm font-medium text-primary">🚀 Moonshot Universe Hackathon</span>
           </div>
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-            <span className="creditcoin-glow">Creditcoin Moonshot</span>
+            <span className="moonfi-glow">MoonFI Moonshot</span>
             <br />
             <span className="text-muted-foreground">The Future of Decentralized Credit</span>
           </h1>
@@ -103,7 +103,7 @@ const Landing = () => {
             through blockchain technology. Build your on-chain credit history today.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="btn-creditcoin text-lg px-8" onClick={() => navigate('/auth')}>
+            <Button size="lg" className="btn-moonfi text-lg px-8" onClick={() => navigate('/auth')}>
               Get Started
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
@@ -143,7 +143,7 @@ const Landing = () => {
       <section className="py-20 overflow-hidden bg-muted/30">
         <div className="container mx-auto px-6 mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
-            Trusted by <span className="creditcoin-glow">Thousands</span>
+            Trusted by <span className="moonfi-glow">Thousands</span>
           </h2>
           <p className="text-center text-muted-foreground">
             See what our users are saying about the platform
@@ -179,7 +179,7 @@ const Landing = () => {
       <section className="py-20 overflow-hidden">
         <div className="container mx-auto px-6 mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
-            Trusted <span className="creditcoin-glow">Partners</span>
+            Trusted <span className="moonfi-glow">Partners</span>
           </h2>
           <p className="text-center text-muted-foreground">
             Integrated with leading blockchain platforms
@@ -191,13 +191,12 @@ const Landing = () => {
             {[...trustedCompanies, ...trustedCompanies].map((company, index) => (
               <div 
                 key={index} 
-                className="flex-shrink-0 w-48 h-24 mx-6 flex items-center justify-center bg-card rounded-xl border border-border/50 card-glow"
+                className="flex-shrink-0 w-48 h-24 mx-6 flex flex-col items-center justify-center bg-card rounded-xl border border-border/50 card-glow gap-2"
               >
-                <img 
-                  src={company.logo} 
-                  alt={company.name}
-                  className="w-20 h-20 object-contain opacity-70 hover:opacity-100 transition-opacity"
-                />
+                <div className="text-3xl font-bold text-primary">
+                  {company.symbol}
+                </div>
+                <p className="text-sm text-muted-foreground">{company.name}</p>
               </div>
             ))}
           </div>
@@ -209,10 +208,10 @@ const Landing = () => {
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center space-x-2">
-              <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-creditcoin-blue to-creditcoin-purple flex items-center justify-center">
-                <span className="text-white font-bold text-xs">C</span>
+              <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-moonfi-blue to-moonfi-purple flex items-center justify-center">
+                <span className="text-white font-bold text-xs">M</span>
               </div>
-              <span className="font-semibold">Creditcoin Moonshot Universe</span>
+              <span className="font-semibold">MoonFI Moonshot Universe</span>
             </div>
             <div className="flex gap-6 text-sm text-muted-foreground">
               <a href="#about" className="hover:text-primary transition-colors">About</a>
@@ -221,7 +220,7 @@ const Landing = () => {
               <a href="#contact" className="hover:text-primary transition-colors">Contact</a>
             </div>
             <p className="text-sm text-muted-foreground">
-              © 2025 Creditcoin Moonshot Universe
+              © 2025 MoonFI Moonshot Universe
             </p>
           </div>
         </div>

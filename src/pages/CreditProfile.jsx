@@ -4,11 +4,11 @@ import { Badge } from '@/components/ui/badge';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import StatsCard from '@/components/StatsCard';
 import WalletConnect from '@/components/WalletConnect';
-import { mockCreditcoinData, mockChartData } from '@/data/mockData';
+import { mockMoonFIData, mockChartData } from '@/data/mockData';
 import { User, CreditCard, TrendingUp, DollarSign } from 'lucide-react';
 
 const CreditProfile = () => {
-  const { creditProfile } = mockCreditcoinData;
+  const { creditProfile } = mockMoonFIData;
   const { creditScoreHistory } = mockChartData;
 
   const getStatusColor = (status) => {
@@ -23,7 +23,7 @@ const CreditProfile = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold creditcoin-glow">Credit Profile</h1>
+        <h1 className="text-3xl font-bold moonfi-glow">Credit Profile</h1>
         <WalletConnect />
       </div>
 

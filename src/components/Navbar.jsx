@@ -23,7 +23,7 @@ const Navbar = () => {
           <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
             <span className="text-sm font-bold text-primary-foreground">C</span>
           </div>
-          <span className="text-xl font-bold creditcoin-glow">Creditcoin</span>
+          <span className="text-xl font-bold moonfi-glow">MoonFI</span>
         </NavLink>
         <WalletConnect />
       </div>
