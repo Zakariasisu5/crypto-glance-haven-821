@@ -1,7 +1,21 @@
 import { NavLink } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { useSupabaseAuth } from '@/integrations/supabase/auth';
+import { LogOut } from 'lucide-react';
+import { toast } from 'sonner';
 import WalletConnect from './WalletConnect';
 
 const Navbar = () => {
+  const navigate = useNavigate();
+  const { logout, session } = useSupabaseAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    toast.success('Logged out successfully');
+    navigate('/');
+  };
+
   return (
     <nav className="sticky top-0 z-50 bg-background border-b border-border p-4">
       <div className="container mx-auto flex justify-between items-center">

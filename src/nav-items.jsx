@@ -13,7 +13,7 @@ import DePINFinance from "./pages/DePINFinance.jsx";
 export const navItems = [
   {
     title: "Dashboard",
-    to: "/",
+    to: "/dashboard",
     icon: <Home className="h-4 w-4" />,
     page: <Index />,
   },
