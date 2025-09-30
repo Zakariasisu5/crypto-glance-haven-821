@@ -31,8 +31,8 @@ const App = () => (
                       <Sidebar />
                       <main className="flex-1 p-8">
                         <Routes>
-                          {routes.map(({ to, page }) => (
-                            <Route key={to} path={to} element={page} />
+                          {routes.map(({ to, page: Page }) => (
+                            <Route key={to} path={to} element={<Page />} />
                           ))}
                         </Routes>
                       </main>

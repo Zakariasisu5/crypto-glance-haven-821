@@ -15,37 +15,37 @@ export const navItems = [
     title: "Dashboard",
     to: "/dashboard",
     icon: <Home className="h-4 w-4" />,
-    page: <Index />,
+    page: Index,
   },
   {
     title: "DeFi Insights",
     to: "/defi",
     icon: <TrendingUp className="h-4 w-4" />,
-    page: <DeFiInsights />,
+    page: DeFiInsights,
   },
   {
     title: "Credit Profile",
     to: "/credit",
     icon: <User className="h-4 w-4" />,
-    page: <CreditProfile />,
+    page: CreditProfile,
   },
   {
     title: "DePIN Finance",
     to: "/depin",
     icon: <Zap className="h-4 w-4" />,
-    page: <DePINFinance />,
+    page: DePINFinance,
   },
   {
     title: "Favorites",
     to: "/favorites",
     icon: <Star className="h-4 w-4" />,
-    page: <Favorites />,
+    page: Favorites,
   },
   {
     title: "Items",
     to: "/items",
     icon: <List className="h-4 w-4" />,
-    page: <Items />,
+    page: Items,
   },
 ];
 
@@ -53,6 +53,6 @@ export const routes = [
   ...navItems,
   {
     to: "/asset/:id",
-    page: <AssetDetails />,
+    page: AssetDetails,
   },
 ];
