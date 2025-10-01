@@ -20,9 +20,12 @@ const Navbar = () => {
     <nav className="sticky top-0 z-50 bg-background border-b border-border p-4">
       <div className="container mx-auto flex justify-between items-center">
         <NavLink to="/" className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-            <span className="text-sm font-bold text-primary-foreground">M</span>
-          </div>
+          <img
+            src="/moonfi-logo.svg"
+            alt="moonFi logo"
+            className="w-8 h-8 rounded-md object-cover"
+            aria-hidden={false}
+          />
           <span className="text-xl font-bold moonfi-glow">MoonFI</span>
         </NavLink>
         <div className="flex items-center gap-4">
