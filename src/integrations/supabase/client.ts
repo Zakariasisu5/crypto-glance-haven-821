@@ -5,12 +5,42 @@ import type { Database } from './types';
 const SUPABASE_URL = "https://fgpijscnpecwxwkfghwe.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZncGlqc2NucGVjd3h3a2ZnaHdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDIyODcsImV4cCI6MjA3NDcxODI4N30.rRbNoIYuMQeuDp_AI4Px4iLMm6UWjE6i8O6ctQW-6M4";
 
+// Safe storage wrapper: some mobile browsers (private mode) throw when accessing localStorage.
+// Provide an in-memory fallback to avoid breaking Supabase session persistence calls.
+const createSafeStorage = () => {
+  let memory: Record<string, string> = {};
+
+  try {
+    const testKey = '__storage_test__';
+    window.localStorage.setItem(testKey, testKey);
+    window.localStorage.removeItem(testKey);
+    return window.localStorage;
+  } catch (e) {
+    return {
+      getItem(key: string) {
+        return Object.prototype.hasOwnProperty.call(memory, key) ? memory[key] : null;
+      },
+      setItem(key: string, value: string) {
+        memory[key] = String(value);
+      },
+      removeItem(key: string) {
+        delete memory[key];
+      },
+      clear() {
+        memory = {};
+      }
+    } as Storage;
+  }
+};
+
+const safeStorage = createSafeStorage();
+
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
-    storage: localStorage,
+    storage: safeStorage,
     persistSession: true,
     autoRefreshToken: true,
   }
