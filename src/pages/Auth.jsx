@@ -48,11 +48,16 @@ const Auth = () => {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/dashboard`
+            // Use hash route so redirect works with HashRouter in production
+            emailRedirectTo: `${window.location.origin}/#/dashboard`
           }
         });
 
-        if (error) throw error;
+        if (error) {
+          toast.error(error.message || 'Sign up failed');
+          setLoading(false);
+          return;
+        }
         toast.success('Account created! Please check your email to verify your account.');
       } else {
         const { error } = await supabase.auth.signInWithPassword({
@@ -60,9 +65,15 @@ const Auth = () => {
           password
         });
 
-        if (error) throw error;
+        if (error) {
+          toast.error(error.message || 'Sign in failed');
+          setLoading(false);
+          return;
+        }
+
         toast.success('Signed in successfully!');
-        navigate('/dashboard');
+        // use hash route for compatibility with HashRouter
+        window.location.href = `${window.location.origin}/#/dashboard`;
       }
     } catch (error) {
       toast.error(error.message || 'An error occurred during authentication');
@@ -76,7 +87,7 @@ const Auth = () => {
     setIsResetting(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
-        redirectTo: `${window.location.origin}/auth`
+        redirectTo: `${window.location.origin}/#/auth`
       });
       if (error) throw error;
       toast.success('Password reset email sent. Check your inbox.');
