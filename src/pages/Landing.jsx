@@ -70,9 +70,7 @@ const Landing = () => {
       <nav className="border-b border-border/40 backdrop-blur-sm fixed w-full z-50 bg-background/80">
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-moonfi-blue to-moonfi-purple flex items-center justify-center">
-              <span className="text-white font-bold text-sm">M</span>
-            </div>
+            <img src="/moonfi-logo.svg" alt="moonFi logo" className="w-8 h-8 rounded-md object-cover" />
             <span className="text-xl font-bold moonfi-glow">MoonFI</span>
           </div>
           <div className="flex gap-3">
@@ -90,25 +88,22 @@ const Landing = () => {
       {/* Hero Section */}
       <section className="pt-32 pb-20 px-6">
         <div className="container mx-auto text-center max-w-4xl">
-          <div className="inline-block mb-6 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
-            <span className="text-sm font-medium text-primary">🚀 Moonshot Universe Hackathon</span>
-          </div>
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-            <span className="moonfi-glow">MoonFI Moonshot</span>
-            <br />
-            <span className="text-muted-foreground">The Future of Decentralized Credit</span>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 leading-tight">
+            <span className="moonfi-glow block">MoonFI — Decentralized Credit, Simplified</span>
           </h1>
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Access transparent credit scoring, competitive DeFi lending rates, and real-world asset financing 
-            through blockchain technology. Build your on-chain credit history today.
+          <p className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
+            Transparent on-chain credit, competitive DeFi lending, and real-world financing powered by privacy-first
+            blockchain integrations. Start building your on-chain credit profile and unlock better rates today.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="btn-moonfi text-lg px-8" onClick={() => navigate('/auth')}>
+            <Button size="lg" className="btn-moonfi text-lg px-8" onClick={() => navigate('/auth')}
+              aria-label="Get started with MoonFI">
               Get Started
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-            <Button size="lg" variant="outline" className="text-lg px-8" onClick={() => navigate('/auth')}>
-              View Dashboard
+            <Button size="lg" variant="outline" className="text-lg px-8" onClick={() => navigate('/defi')}
+              aria-label="Explore DeFi insights">
+              Explore DeFi
             </Button>
           </div>
 
@@ -208,9 +203,7 @@ const Landing = () => {
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center space-x-2">
-              <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-moonfi-blue to-moonfi-purple flex items-center justify-center">
-                <span className="text-white font-bold text-xs">M</span>
-              </div>
+              <img src="/moonfi-logo.svg" alt="moonFi logo" className="w-6 h-6 rounded-sm object-cover" />
               <span className="font-semibold">MoonFI Moonshot Universe</span>
             </div>
             <div className="flex gap-6 text-sm text-muted-foreground">
