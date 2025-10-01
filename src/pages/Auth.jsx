@@ -18,12 +18,24 @@ const Auth = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user is already logged in
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        navigate('/dashboard');
+    // Check if user is already logged in. Timeout to avoid hanging on slow mobile networks
+    const checkSession = async () => {
+      try {
+        const res = await Promise.race([
+          supabase.auth.getSession(),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
+        ]);
+
+        const session = res?.data?.session ?? null;
+        if (session) {
+          navigate('/dashboard');
+        }
+      } catch (err) {
+        // ignore timeout
       }
-    });
+    };
+
+    checkSession();
   }, [navigate]);
 
   const handleAuth = async (e) => {

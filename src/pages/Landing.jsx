@@ -9,13 +9,27 @@ const Landing = () => {
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    // Check if user is already logged in
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        navigate('/dashboard');
+    // Check if user is already logged in. Use a timeout to avoid hanging on mobile
+    const checkSession = async () => {
+      try {
+        const res = await Promise.race([
+          supabase.auth.getSession(),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
+        ]);
+
+        const session = res?.data?.session ?? null;
+        if (session) {
+          navigate('/dashboard');
+        }
+      } catch (err) {
+        // timeout or network error — fall through and stop loading
+        // console.debug('session check failed or timed out', err);
+      } finally {
+        setIsChecking(false);
       }
-      setIsChecking(false);
-    });
+    };
+
+    checkSession();
   }, [navigate]);
 
   if (isChecking) {
