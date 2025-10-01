@@ -1,6 +1,6 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import { SupabaseAuthProvider } from "./integrations/supabase/auth";
 import { WalletProvider } from "./contexts/WalletContext";
 import { routes } from "./nav-items";
@@ -15,7 +15,7 @@ const App = () => (
     <WalletProvider>
       <TooltipProvider>
         <Toaster />
-        <BrowserRouter>
+  <HashRouter>
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/auth" element={<Auth />} />
@@ -40,7 +40,7 @@ const App = () => (
                 }
               />
           </Routes>
-        </BrowserRouter>
+  </HashRouter>
       </TooltipProvider>
     </WalletProvider>
   </SupabaseAuthProvider>
