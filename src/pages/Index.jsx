@@ -348,7 +348,7 @@ const Index = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+    </motion.div>
   );
 };
 
