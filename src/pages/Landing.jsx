@@ -142,10 +142,10 @@ const Landing = () => {
       {/* Testimonials Section */}
       <section className="py-20 overflow-hidden bg-muted/30">
         <div className="container mx-auto px-6 mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4">
             Trusted by <span className="moonfi-glow">Thousands</span>
           </h2>
-          <p className="text-center text-muted-foreground">
+          <p className="text-center text-muted-foreground text-sm sm:text-base">
             See what our users are saying about the platform
           </p>
         </div>
@@ -155,20 +155,20 @@ const Landing = () => {
             {[...testimonials, ...testimonials].map((testimonial, index) => (
               <div 
                 key={index} 
-                className="flex-shrink-0 w-96 mx-4 p-6 bg-card rounded-xl border border-border/50 card-glow"
+                className="flex-shrink-0 w-72 sm:w-80 md:w-96 mx-3 sm:mx-4 p-4 sm:p-6 bg-card rounded-xl border border-border/50 card-glow"
               >
-                <div className="flex items-center gap-4 mb-4">
+                <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
                   <img 
                     src={testimonial.image} 
                     alt={testimonial.name}
-                    className="w-12 h-12 rounded-full object-cover"
+                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover"
                   />
                   <div>
-                    <h4 className="font-semibold">{testimonial.name}</h4>
-                    <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                    <h4 className="font-semibold text-sm sm:text-base">{testimonial.name}</h4>
+                    <p className="text-xs sm:text-sm text-muted-foreground">{testimonial.role}</p>
                   </div>
                 </div>
-                <p className="text-muted-foreground italic">"{testimonial.text}"</p>
+                <p className="text-muted-foreground italic text-sm sm:text-base">"{testimonial.text}"</p>
               </div>
             ))}
           </div>
@@ -178,10 +178,10 @@ const Landing = () => {
       {/* Trusted Companies Section */}
       <section className="py-20 overflow-hidden">
         <div className="container mx-auto px-6 mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4">
             Trusted <span className="moonfi-glow">Partners</span>
           </h2>
-          <p className="text-center text-muted-foreground">
+          <p className="text-center text-muted-foreground text-sm sm:text-base">
             Integrated with leading blockchain platforms
           </p>
         </div>
@@ -191,12 +191,12 @@ const Landing = () => {
             {[...trustedCompanies, ...trustedCompanies].map((company, index) => (
               <div 
                 key={index} 
-                className="flex-shrink-0 w-48 h-24 mx-6 flex flex-col items-center justify-center bg-card rounded-xl border border-border/50 card-glow gap-2"
+                className="flex-shrink-0 w-32 h-20 sm:w-40 sm:h-24 md:w-48 md:h-24 mx-3 sm:mx-4 md:mx-6 flex flex-col items-center justify-center bg-card rounded-xl border border-border/50 card-glow gap-1 sm:gap-2"
               >
-                <div className="text-3xl font-bold text-primary">
+                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-primary">
                   {company.symbol}
                 </div>
-                <p className="text-sm text-muted-foreground">{company.name}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">{company.name}</p>
               </div>
             ))}
           </div>
