@@ -89,7 +89,7 @@ const Auth = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6">
           <Card className="card-glow p-6">
             <CardHeader className="space-y-2">
               <CardTitle className="text-2xl font-bold text-center">
@@ -161,17 +161,6 @@ const Auth = () => {
               )}
             </CardContent>
           </Card>
-
-          <div className="flex flex-col gap-4">
-            <Card className="card-glow p-6">
-              <h4 className="font-semibold mb-2">Why MoonFI?</h4>
-              <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-2">
-                <li>Build on-chain credit history</li>
-                <li>Access competitive DeFi lending rates</li>
-                <li>Secure, privacy-minded authentication</li>
-              </ul>
-            </Card>
-          </div>
         </div>
       </div>
     </div>

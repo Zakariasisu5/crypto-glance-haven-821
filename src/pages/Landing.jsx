@@ -86,46 +86,46 @@ const Landing = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-6">
+      <section className="pt-28 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto text-center max-w-4xl">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-3 sm:mb-4 leading-tight">
             <span className="moonfi-glow block">MoonFI — Decentralized Credit, Simplified</span>
           </h1>
-          <p className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-3xl mx-auto px-2">
             Transparent on-chain credit, competitive DeFi lending, and real-world financing powered by privacy-first
             blockchain integrations. Start building your on-chain credit profile and unlock better rates today.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="btn-moonfi text-lg px-8" onClick={() => navigate('/auth')}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+            <Button size="lg" className="btn-moonfi text-base sm:text-lg px-6 sm:px-8" onClick={() => navigate('/auth')}
               aria-label="Get started with MoonFI">
               Get Started
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-            <Button size="lg" variant="outline" className="text-lg px-8" onClick={() => navigate('/defi')}
+            <Button size="lg" variant="outline" className="text-base sm:text-lg px-6 sm:px-8" onClick={() => navigate('/defi')}
               aria-label="Explore DeFi insights">
               Explore DeFi
             </Button>
           </div>
 
           {/* Feature Cards */}
-          <div className="grid md:grid-cols-3 gap-6 mt-16">
-            <div className="card-glow p-6 rounded-xl">
-              <Shield className="h-12 w-12 text-primary mb-4 mx-auto" />
-              <h3 className="font-bold text-lg mb-2">Secure & Transparent</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mt-12 sm:mt-16">
+            <div className="card-glow p-4 sm:p-6 rounded-xl">
+              <Shield className="h-10 w-10 sm:h-12 sm:w-12 text-primary mb-3 mx-auto" />
+              <h3 className="font-bold text-base sm:text-lg mb-1">Secure & Transparent</h3>
               <p className="text-sm text-muted-foreground">
                 Blockchain-verified credit history with full transparency and security.
               </p>
             </div>
-            <div className="card-glow p-6 rounded-xl">
-              <TrendingUp className="h-12 w-12 text-primary mb-4 mx-auto" />
-              <h3 className="font-bold text-lg mb-2">Competitive Rates</h3>
+            <div className="card-glow p-4 sm:p-6 rounded-xl">
+              <TrendingUp className="h-10 w-10 sm:h-12 sm:w-12 text-primary mb-3 mx-auto" />
+              <h3 className="font-bold text-base sm:text-lg mb-1">Competitive Rates</h3>
               <p className="text-sm text-muted-foreground">
                 Access the best lending and borrowing rates across DeFi protocols.
               </p>
             </div>
-            <div className="card-glow p-6 rounded-xl">
-              <Zap className="h-12 w-12 text-primary mb-4 mx-auto" />
-              <h3 className="font-bold text-lg mb-2">DePIN Integration</h3>
+            <div className="card-glow p-4 sm:p-6 rounded-xl">
+              <Zap className="h-10 w-10 sm:h-12 sm:w-12 text-primary mb-3 mx-auto" />
+              <h3 className="font-bold text-base sm:text-lg mb-1">DePIN Integration</h3>
               <p className="text-sm text-muted-foreground">
                 Finance real-world assets like solar panels, WiFi nodes, and mobility.
               </p>
@@ -146,11 +146,11 @@ const Landing = () => {
         </div>
         
         <div className="relative">
-          <div className="flex animate-scroll-right">
+          <div className="flex gap-3 overflow-x-auto no-scrollbar px-4 sm:px-6 md:px-8 snap-x snap-mandatory">
             {[...testimonials, ...testimonials].map((testimonial, index) => (
               <div 
                 key={index} 
-                className="flex-shrink-0 w-72 sm:w-80 md:w-96 mx-3 sm:mx-4 p-4 sm:p-6 bg-card rounded-xl border border-border/50 card-glow"
+                className="flex-shrink-0 w-72 sm:w-80 md:w-96 mx-0 sm:mx-2 p-4 sm:p-6 bg-card rounded-xl border border-border/50 card-glow snap-start"
               >
                 <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
                   <img 
@@ -182,11 +182,11 @@ const Landing = () => {
         </div>
         
         <div className="relative">
-          <div className="flex animate-scroll-left items-center">
+          <div className="flex gap-3 overflow-x-auto no-scrollbar px-4 sm:px-6 md:px-8 snap-x snap-mandatory items-center">
             {[...trustedCompanies, ...trustedCompanies].map((company, index) => (
               <div 
                 key={index} 
-                className="flex-shrink-0 w-32 h-20 sm:w-40 sm:h-24 md:w-48 md:h-24 mx-3 sm:mx-4 md:mx-6 flex flex-col items-center justify-center bg-card rounded-xl border border-border/50 card-glow gap-1 sm:gap-2"
+                className="flex-shrink-0 w-32 h-20 sm:w-40 sm:h-24 md:w-48 md:h-24 mx-0 sm:mx-2 md:mx-4 flex flex-col items-center justify-center bg-card rounded-xl border border-border/50 card-glow gap-1 sm:gap-2 snap-start"
               >
                 <div className="text-xl sm:text-2xl md:text-3xl font-bold text-primary">
                   {company.symbol}
