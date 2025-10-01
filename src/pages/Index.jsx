@@ -5,11 +5,13 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Search, Star, TrendingUp, DollarSign, Users, Activity } from 'lucide-react';
+import { Search, Star, TrendingUp, DollarSign, Users, Activity, Wallet, CreditCard, TrendingDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from "sonner";
 import StatsCard from '@/components/StatsCard';
 import { mockChartData } from '@/data/mockData';
+import { useWalletContext } from '@/contexts/WalletContext';
+import { motion } from 'framer-motion';
 
 const fetchCryptos = async () => {
   try {
@@ -42,6 +44,12 @@ const Index = () => {
     const saved = localStorage.getItem('cryptoFavorites');
     return saved ? JSON.parse(saved) : [];
   });
+  const { balance, isConnected } = useWalletContext();
+  
+  // Mock user data - replace with actual contract calls
+  const [activeLoanAmount] = useState('2.5');
+  const [creditScore] = useState(720);
+  const [yieldEarned] = useState('0.15');
   const { data: cryptos, isLoading, isError } = useQuery({
     queryKey: ['cryptos'],
     queryFn: fetchCryptos,
@@ -91,45 +99,106 @@ const Index = () => {
   const bitcoin = cryptos?.find(crypto => crypto.id === 'bitcoin');
   const ethereum = cryptos?.find(crypto => crypto.id === 'ethereum');
 
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold moonfi-glow">MoonFI Dashboard</h1>
-          <p className="text-muted-foreground font-mono">{terminalText}</p>
-        </div>
-      </div>
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
 
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatsCard
-          title="Total Market Cap"
-          value={cryptos ? `$${(cryptos.reduce((sum, crypto) => sum + parseFloat(crypto.marketCapUsd), 0) / 1e12).toFixed(2)}T` : 'Loading...'}
-          description="Global crypto market"
-          icon={DollarSign}
-          trend={5.2}
-        />
-        <StatsCard
-          title="Active Assets"
-          value={cryptos?.length || 0}
-          description="Tracked cryptocurrencies"
-          icon={Activity}
-        />
-        <StatsCard
-          title="MoonFI Price"
-          value={moonfi ? `$${parseFloat(moonfi.priceUsd).toFixed(4)}` : '$0.5847'}
-          description="CTC current price"
-          icon={TrendingUp}
-          trend={moonfi ? parseFloat(moonfi.changePercent24Hr) : 8.4}
-        />
-        <StatsCard
-          title="DeFi Users"
-          value="12.4K"
-          description="Active participants"
-          icon={Users}
-          trend={23.1}
-        />
-      </div>
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1
+    }
+  };
+
+  return (
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="space-y-8"
+    >
+      {/* Welcome Terminal Effect */}
+      <motion.div variants={itemVariants} className="bg-card border border-border rounded-lg p-6 font-mono text-sm">
+        <div className="text-primary mb-2">$ moonfi.init()</div>
+        <div className="text-muted-foreground">{terminalText}</div>
+      </motion.div>
+
+      {/* Dashboard Overview Cards */}
+      <motion.div variants={itemVariants}>
+        <h2 className="text-2xl font-bold mb-4">Dashboard Overview</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatsCard
+            title="Wallet Balance"
+            value={isConnected ? `${balance} ETH` : 'Not Connected'}
+            description="Your current ETH balance"
+            icon={Wallet}
+            className="card-glow"
+          />
+          <StatsCard
+            title="Active Loan"
+            value={`${activeLoanAmount} ETH`}
+            description="Current borrowed amount"
+            icon={TrendingDown}
+            className="card-glow"
+          />
+          <StatsCard
+            title="Credit Score"
+            value={creditScore}
+            description="Your on-chain credit rating"
+            icon={CreditCard}
+            className="card-glow"
+          />
+          <StatsCard
+            title="Yield Earned"
+            value={`${yieldEarned} ETH`}
+            description="Total earnings from lending"
+            icon={TrendingUp}
+            trend={parseFloat(yieldEarned) > 0 ? 8.5 : 0}
+            className="card-glow"
+          />
+        </div>
+      </motion.div>
+
+      {/* Market Stats Cards */}
+      <motion.div variants={itemVariants}>
+        <h2 className="text-2xl font-bold mb-4">Market Statistics</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatsCard
+            title="Total Market Cap"
+            value={cryptos ? `$${(cryptos.reduce((sum, crypto) => sum + parseFloat(crypto.marketCapUsd), 0) / 1e12).toFixed(2)}T` : 'Loading...'}
+            description="Global crypto market"
+            icon={DollarSign}
+            trend={5.2}
+          />
+          <StatsCard
+            title="Active Assets"
+            value={cryptos?.length || 0}
+            description="Tracked cryptocurrencies"
+            icon={Activity}
+          />
+          <StatsCard
+            title="MoonFI Price"
+            value={moonfi ? `$${parseFloat(moonfi.priceUsd).toFixed(4)}` : '$0.5847'}
+            description="CTC current price"
+            icon={TrendingUp}
+            trend={moonfi ? parseFloat(moonfi.changePercent24Hr) : 8.4}
+          />
+          <StatsCard
+            title="DeFi Users"
+            value="12.4K"
+            description="Active participants"
+            icon={Users}
+            trend={23.1}
+          />
+        </div>
+      </motion.div>
 
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>

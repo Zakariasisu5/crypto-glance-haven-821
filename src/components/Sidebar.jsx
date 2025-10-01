@@ -1,13 +1,15 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { Home, TrendingUp, User, Zap, Star, List } from 'lucide-react';
+import { Home, TrendingUp, User, Zap, Star, List, DollarSign, CreditCard } from 'lucide-react';
 
 const Sidebar = () => {
   const location = useLocation();
 
   const menuItems = [
-    { icon: Home, label: 'Dashboard', path: '/' },
-    { icon: TrendingUp, label: 'DeFi Insights', path: '/defi' },
+    { icon: Home, label: 'Dashboard', path: '/dashboard' },
+    { icon: DollarSign, label: 'Lend', path: '/lend' },
+    { icon: CreditCard, label: 'Borrow', path: '/borrow' },
     { icon: User, label: 'Credit Profile', path: '/credit' },
+    { icon: TrendingUp, label: 'DeFi Insights', path: '/defi' },
     { icon: Zap, label: 'DePIN Finance', path: '/depin' },
     { icon: Star, label: 'Favorites', path: '/favorites' },
     { icon: List, label: 'Items', path: '/items' },
