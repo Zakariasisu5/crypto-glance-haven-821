@@ -1,40 +1,9 @@
-import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
 import { ArrowRight, Shield, TrendingUp, Zap } from 'lucide-react';
 
 const Landing = () => {
   const navigate = useNavigate();
-  const [isChecking, setIsChecking] = useState(true);
-
-  useEffect(() => {
-    // Check if user is already logged in. Use a timeout to avoid hanging on mobile
-    const checkSession = async () => {
-      try {
-        const res = await Promise.race([
-          supabase.auth.getSession(),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
-        ]);
-
-        const session = res?.data?.session ?? null;
-        if (session) {
-          navigate('/dashboard');
-        }
-      } catch (err) {
-        // timeout or network error — fall through and stop loading
-        // console.debug('session check failed or timed out', err);
-      } finally {
-        setIsChecking(false);
-      }
-    };
-
-    checkSession();
-  }, [navigate]);
-
-  if (isChecking) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-  }
 
   const testimonials = [
     {
@@ -110,7 +79,7 @@ const Landing = () => {
             blockchain integrations. Start building your on-chain credit profile and unlock better rates today.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-            <Button size="lg" className="btn-moonfi text-base sm:text-lg px-6 sm:px-8" onClick={() => navigate('/auth')}
+            <Button size="lg" className="btn-moonfi text-base sm:text-lg px-6 sm:px-8" onClick={() => navigate('/dashboard')}
               aria-label="Get started with MoonFI">
               Get Started
               <ArrowRight className="ml-2 h-5 w-5" />

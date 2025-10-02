@@ -1,21 +1,7 @@
 import { NavLink } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { useSupabaseAuth } from '@/integrations/supabase/auth';
-import { LogOut } from 'lucide-react';
-import { toast } from 'sonner';
 import WalletConnectButton from './WalletConnectButton';
 
 const Navbar = ({ onToggleSidebar }) => {
-  const navigate = useNavigate();
-  const { logout, session } = useSupabaseAuth();
-
-  const handleLogout = async () => {
-    await logout();
-    toast.success('Logged out successfully');
-    navigate('/');
-  };
-
   return (
     <nav className="sticky top-0 z-50 bg-background border-b border-border p-4">
       <div className="container mx-auto flex justify-between items-center">
@@ -31,7 +17,7 @@ const Navbar = ({ onToggleSidebar }) => {
             </svg>
           </button>
 
-          <NavLink to="/" className="flex items-center space-x-3">
+          <NavLink to="/dashboard" className="flex items-center space-x-3">
             <img
               src="/moonfi-logo.svg"
               alt="moonFi logo"
@@ -42,12 +28,8 @@ const Navbar = ({ onToggleSidebar }) => {
           </NavLink>
         </div>
 
-        <div className="hidden md:flex items-center gap-4">
+        <div className="flex items-center gap-2">
           <WalletConnectButton />
-          <Button variant="outline" size="sm" onClick={handleLogout}>
-            <LogOut className="h-4 w-4 mr-2" />
-            Logout
-          </Button>
         </div>
       </div>
     </nav>
