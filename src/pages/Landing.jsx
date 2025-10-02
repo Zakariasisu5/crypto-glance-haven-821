@@ -56,15 +56,6 @@ const Landing = () => {
             <img src="/moonfi-logo.svg" alt="moonFi logo" className="w-8 h-8 rounded-md object-cover" />
             <span className="text-xl font-bold moonfi-glow">MoonFI</span>
           </div>
-          <div className="flex gap-3">
-            <Button variant="outline" onClick={() => navigate('/auth')}>
-              Sign In
-            </Button>
-            <Button className="btn-moonfi" onClick={() => navigate('/auth')}>
-              Sign Up
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
         </div>
       </nav>
 

@@ -3,7 +3,6 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import StatsCard from '@/components/StatsCard';
-import WalletConnect from '@/components/WalletConnect';
 import { mockMoonFIData, mockChartData } from '@/data/mockData';
 import { User, CreditCard, TrendingUp, DollarSign } from 'lucide-react';
 
@@ -22,10 +21,7 @@ const CreditProfile = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold moonfi-glow">Credit Profile</h1>
-        <WalletConnect />
-      </div>
+      <h1 className="text-3xl font-bold moonfi-glow">Credit Profile</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatsCard
