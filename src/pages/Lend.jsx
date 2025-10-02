@@ -10,8 +10,8 @@ import { DollarSign, TrendingUp, Wallet } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Lend = () => {
-  const { account, signer, isConnected } = useWalletContext();
-  const { lendingPool } = useContract(signer);
+  const { account, isConnected } = useWalletContext();
+  const { lendingPool } = useContract();
   const [depositAmount, setDepositAmount] = useState('');
   const [depositedBalance, setDepositedBalance] = useState('0');
   const [yieldEarned, setYieldEarned] = useState('0');

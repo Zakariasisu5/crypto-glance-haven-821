@@ -12,8 +12,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 
 const Borrow = () => {
-  const { account, signer, isConnected } = useWalletContext();
-  const { lendingPool, creditProfile } = useContract(signer);
+  const { account, isConnected } = useWalletContext();
+  const { lendingPool, creditProfile } = useContract();
   const [borrowAmount, setBorrowAmount] = useState('');
   const [activeLoan, setActiveLoan] = useState(null);
   const [creditScore, setCreditScore] = useState(0);

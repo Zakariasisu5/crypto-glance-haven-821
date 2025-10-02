@@ -143,4 +143,35 @@
   .animate-scroll-right {
     animation: scroll-right 30s linear infinite;
   }
+
+  /* RainbowKit Custom Theme */
+  .iekbcc0 {
+    background: hsl(var(--card)) !important;
+    border-color: hsl(var(--border)) !important;
+  }
+
+  /* RainbowKit modal backdrop */
+  div[role="dialog"] > div {
+    background: rgba(0, 0, 0, 0.8) !important;
+  }
+
+  /* RainbowKit modal */
+  div[role="dialog"] > div > div {
+    background: hsl(var(--card)) !important;
+    border: 1px solid hsl(var(--border)) !important;
+    box-shadow: var(--shadow-glow) !important;
+  }
+
+  /* RainbowKit buttons */
+  button[data-testid="rk-wallet-option"] {
+    background: hsl(var(--muted)) !important;
+    border: 1px solid hsl(var(--border)) !important;
+    transition: all 0.2s !important;
+  }
+
+  button[data-testid="rk-wallet-option"]:hover {
+    background: hsl(var(--muted) / 0.8) !important;
+    border-color: hsl(var(--primary) / 0.5) !important;
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.2) !important;
+  }
 }

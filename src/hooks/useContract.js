@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Contract } from 'ethers';
+import { useWalletClient } from 'wagmi';
+import { getContract } from 'viem';
 
 // Mock contract addresses - replace with your deployed contracts
 const LENDING_POOL_ADDRESS = '0x0000000000000000000000000000000000000000';
@@ -21,14 +22,24 @@ const CREDIT_PROFILE_ABI = [
   'function getLoanHistory(address user) external view returns (tuple(uint256 amount, uint256 timestamp, bool repaid)[])',
 ];
 
-export const useContract = (signer) => {
+export const useContract = () => {
+  const { data: walletClient } = useWalletClient();
   const [lendingPool, setLendingPool] = useState(null);
   const [creditProfile, setCreditProfile] = useState(null);
 
   useEffect(() => {
-    if (signer) {
-      const lending = new Contract(LENDING_POOL_ADDRESS, LENDING_POOL_ABI, signer);
-      const credit = new Contract(CREDIT_PROFILE_ADDRESS, CREDIT_PROFILE_ABI, signer);
+    if (walletClient) {
+      const lending = getContract({
+        address: LENDING_POOL_ADDRESS,
+        abi: LENDING_POOL_ABI,
+        client: walletClient,
+      });
+      
+      const credit = getContract({
+        address: CREDIT_PROFILE_ADDRESS,
+        abi: CREDIT_PROFILE_ABI,
+        client: walletClient,
+      });
       
       setLendingPool(lending);
       setCreditProfile(credit);
@@ -36,7 +47,7 @@ export const useContract = (signer) => {
       setLendingPool(null);
       setCreditProfile(null);
     }
-  }, [signer]);
+  }, [walletClient]);
 
   return {
     lendingPool,

@@ -1,10 +1,27 @@
 import { createContext, useContext } from 'react';
-import { useWallet } from '@/hooks/useWallet';
+import { useAccount, useBalance, useDisconnect } from 'wagmi';
+import { formatEther } from 'viem';
 
 const WalletContext = createContext(null);
 
 export const WalletProvider = ({ children }) => {
-  const wallet = useWallet();
+  const { address, isConnected, isConnecting } = useAccount();
+  const { data: balanceData } = useBalance({
+    address: address,
+  });
+  const { disconnect } = useDisconnect();
+
+  const balance = balanceData 
+    ? parseFloat(formatEther(balanceData.value)).toFixed(4)
+    : '0';
+
+  const wallet = {
+    account: address,
+    balance,
+    isConnected,
+    isConnecting,
+    disconnectWallet: disconnect,
+  };
   
   return (
     <WalletContext.Provider value={wallet}>
