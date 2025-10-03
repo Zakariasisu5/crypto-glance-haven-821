@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { Home, TrendingUp, User, Zap, Star, List, DollarSign, CreditCard } from 'lucide-react';
+import { Home, TrendingUp, User, Zap, Star, DollarSign, CreditCard } from 'lucide-react';
 
 const Sidebar = ({ sidebarOpen = false, onClose }) => {
   const location = useLocation();
@@ -12,7 +12,6 @@ const Sidebar = ({ sidebarOpen = false, onClose }) => {
     { icon: TrendingUp, label: 'DeFi Insights', path: '/defi' },
     { icon: Zap, label: 'DePIN Finance', path: '/depin' },
     { icon: Star, label: 'Favorites', path: '/favorites' },
-    { icon: List, label: 'Items', path: '/items' },
   ];
 
   return (
