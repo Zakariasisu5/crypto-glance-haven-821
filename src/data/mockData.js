@@ -55,5 +55,29 @@ export const mockChartData = {
     { category: 'WiFi', value: 1200000 },
     { category: 'Mobility', value: 950000 },
     { category: 'Other', value: 500000 }
+  ],
+  
+  tvlHistory: [
+    { date: '2024-01', tvl: 35000000, lenders: 1200, borrowers: 450 },
+    { date: '2024-02', tvl: 38000000, lenders: 1350, borrowers: 520 },
+    { date: '2024-03', tvl: 40000000, lenders: 1500, borrowers: 600 },
+    { date: '2024-04', tvl: 42500000, lenders: 1680, borrowers: 720 },
+    { date: '2024-05', tvl: 45000000, lenders: 1850, borrowers: 850 }
+  ],
+  
+  rateHistory: [
+    { date: '2024-01', lending: 4.8, borrowing: 8.2 },
+    { date: '2024-02', lending: 5.0, borrowing: 8.0 },
+    { date: '2024-03', lending: 5.1, borrowing: 7.9 },
+    { date: '2024-04', lending: 5.3, borrowing: 7.8 },
+    { date: '2024-05', lending: 5.2, borrowing: 7.8 }
+  ],
+  
+  volumeHistory: [
+    { date: '2024-01', volume: 650000, loans: 180 },
+    { date: '2024-02', volume: 720000, loans: 210 },
+    { date: '2024-03', volume: 780000, loans: 245 },
+    { date: '2024-04', volume: 820000, loans: 270 },
+    { date: '2024-05', volume: 850000, loans: 290 }
   ]
 };
