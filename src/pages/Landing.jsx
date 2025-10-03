@@ -1,9 +1,37 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Shield, TrendingUp, Zap } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowRight, Shield, TrendingUp, Zap, Users, DollarSign, Activity } from 'lucide-react';
+import { AreaChart, Area, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import heroImage from '@/assets/hero-defi.jpg';
+import defiNetwork from '@/assets/defi-network.jpg';
+import creditScore from '@/assets/credit-score.jpg';
 
 const Landing = () => {
   const navigate = useNavigate();
+
+  const growthData = [
+    { month: 'Jan', tvl: 35, users: 1200 },
+    { month: 'Feb', tvl: 38, users: 1350 },
+    { month: 'Mar', tvl: 40, users: 1500 },
+    { month: 'Apr', tvl: 42, users: 1680 },
+    { month: 'May', tvl: 45, users: 1850 }
+  ];
+
+  const volumeData = [
+    { month: 'Jan', volume: 650 },
+    { month: 'Feb', volume: 720 },
+    { month: 'Mar', volume: 780 },
+    { month: 'Apr', volume: 820 },
+    { month: 'May', volume: 850 }
+  ];
+
+  const platformStats = [
+    { label: 'Total Value Locked', value: '$45M', icon: DollarSign, trend: '+12.5%' },
+    { label: 'Active Users', value: '1,850', icon: Users, trend: '+18%' },
+    { label: 'Daily Volume', value: '$850K', icon: Activity, trend: '+5.2%' },
+    { label: 'Active Loans', value: '1,247', icon: TrendingUp, trend: '+8.1%' }
+  ];
 
   const testimonials = [
     {
@@ -60,8 +88,18 @@ const Landing = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-28 pb-16 px-4 sm:px-6 lg:px-8">
-        <div className="container mx-auto text-center max-w-4xl">
+      <section className="relative pt-28 pb-16 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        {/* Hero Background Image */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src={heroImage} 
+            alt="DeFi Background" 
+            className="w-full h-full object-cover opacity-20"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/90 to-background"></div>
+        </div>
+        
+        <div className="container mx-auto text-center max-w-4xl relative z-10">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-3 sm:mb-4 leading-tight">
             <span className="moonfi-glow block">MoonFI — Decentralized Credit, Simplified</span>
           </h1>
@@ -103,6 +141,200 @@ const Landing = () => {
               <p className="text-sm text-muted-foreground">
                 Finance real-world assets like solar panels, WiFi nodes, and mobility.
               </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Platform Stats Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted/30">
+        <div className="container mx-auto">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-12">
+            Platform <span className="moonfi-glow">Performance</span>
+          </h2>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            {platformStats.map((stat, index) => (
+              <Card key={index} className="card-glow">
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <stat.icon className="h-8 w-8 text-primary" />
+                    <span className="text-sm text-green-500 font-semibold">{stat.trend}</span>
+                  </div>
+                  <div className="text-3xl font-bold mb-1">{stat.value}</div>
+                  <p className="text-sm text-muted-foreground">{stat.label}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card className="card-glow">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" />
+                  Total Value Locked Growth
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={250}>
+                  <AreaChart data={growthData}>
+                    <defs>
+                      <linearGradient id="tvlGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis 
+                      dataKey="month" 
+                      stroke="hsl(var(--muted-foreground))"
+                      fontSize={12}
+                    />
+                    <YAxis 
+                      stroke="hsl(var(--muted-foreground))"
+                      fontSize={12}
+                      tickFormatter={(value) => `$${value}M`}
+                    />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'hsl(var(--background))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px'
+                      }}
+                      formatter={(value) => [`$${value}M`, 'TVL']}
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="tvl" 
+                      stroke="hsl(var(--primary))" 
+                      strokeWidth={2}
+                      fill="url(#tvlGradient)" 
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card className="card-glow">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="h-5 w-5" />
+                  Monthly Trading Volume
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={250}>
+                  <BarChart data={volumeData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis 
+                      dataKey="month" 
+                      stroke="hsl(var(--muted-foreground))"
+                      fontSize={12}
+                    />
+                    <YAxis 
+                      stroke="hsl(var(--muted-foreground))"
+                      fontSize={12}
+                      tickFormatter={(value) => `$${value}K`}
+                    />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'hsl(var(--background))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px'
+                      }}
+                      formatter={(value) => [`$${value}K`, 'Volume']}
+                    />
+                    <Bar 
+                      dataKey="volume" 
+                      fill="hsl(var(--chart-1))"
+                      radius={[8, 8, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Visual Features Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                Build Your <span className="moonfi-glow">On-Chain Credit</span>
+              </h2>
+              <p className="text-muted-foreground mb-6">
+                Create a transparent, verifiable credit profile on the blockchain. Access better rates, higher limits, and exclusive DeFi opportunities based on your proven track record.
+              </p>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-3">
+                  <Shield className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+                  <div>
+                    <h4 className="font-semibold mb-1">Blockchain Verified</h4>
+                    <p className="text-sm text-muted-foreground">Every transaction immutably recorded and verified</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <TrendingUp className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+                  <div>
+                    <h4 className="font-semibold mb-1">Dynamic Credit Scoring</h4>
+                    <p className="text-sm text-muted-foreground">Real-time credit score updates based on your activity</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Zap className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+                  <div>
+                    <h4 className="font-semibold mb-1">Instant Access</h4>
+                    <p className="text-sm text-muted-foreground">No waiting periods, access credit immediately</p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div className="relative">
+              <img 
+                src={creditScore} 
+                alt="Credit Score Visualization" 
+                className="rounded-2xl shadow-2xl card-glow"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="order-2 lg:order-1 relative">
+              <img 
+                src={defiNetwork} 
+                alt="DeFi Network" 
+                className="rounded-2xl shadow-2xl card-glow"
+              />
+            </div>
+            <div className="order-1 lg:order-2">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                Connect to the <span className="moonfi-glow">DeFi Ecosystem</span>
+              </h2>
+              <p className="text-muted-foreground mb-6">
+                Access the best rates across multiple DeFi protocols. Our platform aggregates lending and borrowing opportunities to give you the most competitive terms in the market.
+              </p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-card rounded-lg border border-border">
+                  <div className="text-2xl font-bold text-primary mb-1">5.2%</div>
+                  <p className="text-sm text-muted-foreground">Avg. Lending APY</p>
+                </div>
+                <div className="p-4 bg-card rounded-lg border border-border">
+                  <div className="text-2xl font-bold text-primary mb-1">7.8%</div>
+                  <p className="text-sm text-muted-foreground">Avg. Borrow APR</p>
+                </div>
+                <div className="p-4 bg-card rounded-lg border border-border">
+                  <div className="text-2xl font-bold text-primary mb-1">$45M</div>
+                  <p className="text-sm text-muted-foreground">Total Locked</p>
+                </div>
+                <div className="p-4 bg-card rounded-lg border border-border">
+                  <div className="text-2xl font-bold text-primary mb-1">6+</div>
+                  <p className="text-sm text-muted-foreground">Chain Support</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
