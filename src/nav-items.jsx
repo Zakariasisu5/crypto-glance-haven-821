@@ -1,8 +1,7 @@
-import { Home, TrendingUp, User, Zap, Star, List, DollarSign, CreditCard } from "lucide-react";
+import { Home, TrendingUp, User, Zap, Star, DollarSign, CreditCard } from "lucide-react";
 import Index from "./pages/Index.jsx";
 import AssetDetails from "./pages/AssetDetails.jsx";
 import Favorites from "./pages/Favorites.jsx";
-import Items from "./pages/Items.jsx";
 import DeFiInsights from "./pages/DeFiInsights.jsx";
 import CreditProfile from "./pages/CreditProfile.jsx";
 import DePINFinance from "./pages/DePINFinance.jsx";
@@ -54,12 +53,6 @@ export const navItems = [
     to: "/favorites",
     icon: <Star className="h-4 w-4" />,
     page: Favorites,
-  },
-  {
-    title: "Items",
-    to: "/items",
-    icon: <List className="h-4 w-4" />,
-    page: Items,
   },
 ];
 
