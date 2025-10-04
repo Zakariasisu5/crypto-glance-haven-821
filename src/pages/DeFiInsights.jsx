@@ -2,19 +2,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import StatsCard from '@/components/StatsCard';
-import { mockMoonFIData, mockChartData } from '@/data/mockData';
+import { mockMoonCreditFiData, mockChartData } from '@/data/mockData';
 import { TrendingUp, DollarSign, Users, Droplets, Activity, BarChart3 } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 const DeFiInsights = () => {
-  const { defiInsights } = mockMoonFIData;
+  const { defiInsights } = mockMoonCreditFiData;
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold moonfi-glow">DeFi Insights</h1>
+        <h1 className="text-3xl font-bold mooncreditfi-glow">DeFi Insights</h1>
         <div className="text-sm text-muted-foreground">
-          MoonFI lending & borrowing ecosystem
+          MoonCreditFi lending & borrowing ecosystem
         </div>
       </div>
 

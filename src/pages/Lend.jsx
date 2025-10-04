@@ -141,7 +141,7 @@ const Lend = () => {
               <Button
                 onClick={handleDeposit}
                 disabled={isLoading || !isConnected}
-                className="w-full btn-moonfi"
+                className="w-full btn-mooncreditfi"
               >
                 {isLoading ? 'Processing...' : 'Deposit'}
               </Button>

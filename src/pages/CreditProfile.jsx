@@ -3,11 +3,11 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import StatsCard from '@/components/StatsCard';
-import { mockMoonFIData, mockChartData } from '@/data/mockData';
+import { mockMoonCreditFiData, mockChartData } from '@/data/mockData';
 import { User, CreditCard, TrendingUp, DollarSign } from 'lucide-react';
 
 const CreditProfile = () => {
-  const { creditProfile } = mockMoonFIData;
+  const { creditProfile } = mockMoonCreditFiData;
   const { creditScoreHistory } = mockChartData;
 
   const getStatusColor = (status) => {
@@ -21,7 +21,7 @@ const CreditProfile = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold moonfi-glow">Credit Profile</h1>
+      <h1 className="text-3xl font-bold mooncreditfi-glow">Credit Profile</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatsCard

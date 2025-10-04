@@ -107,8 +107,8 @@ const Auth = () => {
             Back to Home
           </Button>
           <div className="flex items-center gap-3">
-            <img src="/moonfi-logo.svg" alt="moonFi" className="w-8 h-8 rounded-sm" />
-            <span className="font-semibold">MoonFI</span>
+            <img src="/moonfi-logo.svg" alt="MoonCreditFi" className="w-8 h-8 rounded-sm" />
+            <span className="font-semibold">MoonCreditFi</span>
           </div>
         </div>
 
@@ -149,7 +149,7 @@ const Auth = () => {
                     minLength={6}
                   />
                 </div>
-                <Button type="submit" className="w-full btn-moonfi" disabled={loading}>
+                <Button type="submit" className="w-full btn-mooncreditfi" disabled={loading}>
                   {loading ? 'Loading...' : (isSignUp ? 'Sign Up' : 'Sign In')}
                 </Button>
               </form>

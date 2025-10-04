@@ -36,7 +36,7 @@ const WalletConnectButton = () => {
             {(() => {
               if (!connected) {
                 return (
-                  <Button onClick={openConnectModal} className="btn-moonfi">
+                  <Button onClick={openConnectModal} className="btn-mooncreditfi">
                     <Wallet className="h-4 w-4 mr-2" />
                     Connect Wallet
                   </Button>

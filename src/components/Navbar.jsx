@@ -20,11 +20,11 @@ const Navbar = ({ onToggleSidebar }) => {
           <NavLink to="/dashboard" className="flex items-center space-x-3">
             <img
               src="/moonfi-logo.svg"
-              alt="moonFi logo"
+              alt="MoonCreditFi logo"
               className="w-8 h-8 rounded-md object-cover"
               aria-hidden={false}
             />
-            <span className="text-xl font-bold moonfi-glow">MoonFI</span>
+            <span className="text-xl font-bold mooncreditfi-glow">MoonCreditFi</span>
           </NavLink>
         </div>
 

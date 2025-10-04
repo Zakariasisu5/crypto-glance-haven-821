@@ -38,7 +38,7 @@ const Landing = () => {
       name: "Sarah Chen",
       role: "DeFi Investor",
       image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop",
-      text: "MoonFI revolutionized how I access credit in DeFi. The platform is intuitive and secure."
+      text: "MoonCreditFi revolutionized how I access credit in DeFi. The platform is intuitive and secure."
     },
     {
       name: "Marcus Rodriguez",
@@ -56,7 +56,7 @@ const Landing = () => {
       name: "James Wilson",
       role: "Fintech Entrepreneur",
       image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop",
-      text: "MoonFI's lending rates are competitive and the credit profiles are game-changing."
+      text: "MoonCreditFi's lending rates are competitive and the credit profiles are game-changing."
     },
     {
       name: "Elena Kowalski",
@@ -81,8 +81,8 @@ const Landing = () => {
       <nav className="border-b border-border/40 backdrop-blur-sm fixed w-full z-50 bg-background/80">
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-2">
-            <img src="/moonfi-logo.svg" alt="moonFi logo" className="w-8 h-8 rounded-md object-cover" />
-            <span className="text-xl font-bold moonfi-glow">MoonFI</span>
+            <img src="/moonfi-logo.svg" alt="MoonCreditFi logo" className="w-8 h-8 rounded-md object-cover" />
+            <span className="text-xl font-bold mooncreditfi-glow">MoonCreditFi</span>
           </div>
         </div>
       </nav>
@@ -101,15 +101,15 @@ const Landing = () => {
         
         <div className="container mx-auto text-center max-w-4xl relative z-10">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-3 sm:mb-4 leading-tight">
-            <span className="moonfi-glow block">MoonFI — Decentralized Credit, Simplified</span>
+            <span className="mooncreditfi-glow block">MoonCreditFi — Decentralized Credit, Simplified</span>
           </h1>
           <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-3xl mx-auto px-2">
             Transparent on-chain credit, competitive DeFi lending, and real-world financing powered by privacy-first
             blockchain integrations. Start building your on-chain credit profile and unlock better rates today.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-            <Button size="lg" className="btn-moonfi text-base sm:text-lg px-6 sm:px-8" onClick={() => navigate('/dashboard')}
-              aria-label="Get started with MoonFI">
+            <Button size="lg" className="btn-mooncreditfi text-base sm:text-lg px-6 sm:px-8" onClick={() => navigate('/dashboard')}
+              aria-label="Get started with MoonCreditFi">
               Get Started
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
@@ -150,7 +150,7 @@ const Landing = () => {
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted/30">
         <div className="container mx-auto">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-12">
-            Platform <span className="moonfi-glow">Performance</span>
+            Platform <span className="mooncreditfi-glow">Performance</span>
           </h2>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
@@ -264,7 +264,7 @@ const Landing = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                Build Your <span className="moonfi-glow">On-Chain Credit</span>
+                Build Your <span className="mooncreditfi-glow">On-Chain Credit</span>
               </h2>
               <p className="text-muted-foreground mb-6">
                 Create a transparent, verifiable credit profile on the blockchain. Access better rates, higher limits, and exclusive DeFi opportunities based on your proven track record.
@@ -312,7 +312,7 @@ const Landing = () => {
             </div>
             <div className="order-1 lg:order-2">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                Connect to the <span className="moonfi-glow">DeFi Ecosystem</span>
+                Connect to the <span className="mooncreditfi-glow">DeFi Ecosystem</span>
               </h2>
               <p className="text-muted-foreground mb-6">
                 Access the best rates across multiple DeFi protocols. Our platform aggregates lending and borrowing opportunities to give you the most competitive terms in the market.
@@ -344,7 +344,7 @@ const Landing = () => {
       <section className="py-20 overflow-hidden bg-muted/30">
         <div className="container mx-auto px-6 mb-12">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4">
-            Trusted by <span className="moonfi-glow">Thousands</span>
+            Trusted by <span className="mooncreditfi-glow">Thousands</span>
           </h2>
           <p className="text-center text-muted-foreground text-sm sm:text-base">
             See what our users are saying about the platform
@@ -380,7 +380,7 @@ const Landing = () => {
       <section className="py-20 overflow-hidden">
         <div className="container mx-auto px-6 mb-12">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4">
-            Trusted <span className="moonfi-glow">Partners</span>
+            Trusted <span className="mooncreditfi-glow">Partners</span>
           </h2>
           <p className="text-center text-muted-foreground text-sm sm:text-base">
             Integrated with leading blockchain platforms
@@ -409,8 +409,8 @@ const Landing = () => {
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center space-x-2">
-              <img src="/moonfi-logo.svg" alt="moonFi logo" className="w-6 h-6 rounded-sm object-cover" />
-              <span className="font-semibold">MoonFI Moonshot Universe</span>
+              <img src="/moonfi-logo.svg" alt="MoonCreditFi logo" className="w-6 h-6 rounded-sm object-cover" />
+              <span className="font-semibold">MoonCreditFi Moonshot Universe</span>
             </div>
             <div className="flex gap-6 text-sm text-muted-foreground">
               <a href="#about" className="hover:text-primary transition-colors">About</a>
@@ -419,7 +419,7 @@ const Landing = () => {
               <a href="#contact" className="hover:text-primary transition-colors">Contact</a>
             </div>
             <p className="text-sm text-muted-foreground">
-              © 2025 MoonFI Moonshot Universe
+              © 2025 MoonCreditFi Moonshot Universe
             </p>
           </div>
         </div>

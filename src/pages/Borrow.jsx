@@ -164,7 +164,7 @@ const Borrow = () => {
               <Button
                 onClick={handleBorrow}
                 disabled={isLoading || !isConnected || !!activeLoan}
-                className="w-full btn-moonfi"
+                className="w-full btn-mooncreditfi"
               >
                 {isLoading ? 'Processing...' : activeLoan ? 'Repay Current Loan First' : 'Borrow'}
               </Button>
@@ -208,7 +208,7 @@ const Borrow = () => {
                   <Button
                     onClick={handleRepay}
                     disabled={isLoading || !isConnected}
-                    className="w-full btn-moonfi"
+                    className="w-full btn-mooncreditfi"
                   >
                     {isLoading ? 'Processing...' : 'Repay Loan'}
                   </Button>
