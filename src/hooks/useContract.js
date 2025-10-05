@@ -1,56 +1,48 @@
-import { useState, useEffect } from 'react';
-import { useWalletClient } from 'wagmi';
-import { getContract } from 'viem';
+import { useReadContract, useWriteContract, useWatchContractEvent } from 'wagmi';
 
-// Mock contract addresses - replace with your deployed contracts
-const LENDING_POOL_ADDRESS = '0x0000000000000000000000000000000000000000';
-const CREDIT_PROFILE_ADDRESS = '0x0000000000000000000000000000000000000000';
+// Deployed on Creditcoin Testnet
+export const LENDING_POOL_ADDRESS = '0x6AFa3a9BDc76e7e2a88104cf24420e7Bc9F07728';
+export const CREDIT_PROFILE_ADDRESS = '0x32228b52A411528F521412B4cEb1F0D21e84bDed';
 
-// Simplified ABIs - replace with your actual contract ABIs
-const LENDING_POOL_ABI = [
-  'function deposit() external payable',
-  'function withdraw(uint256 amount) external',
-  'function borrow(uint256 amount) external',
-  'function repay() external payable',
-  'function getLenderBalance(address lender) external view returns (uint256)',
-  'function getBorrowerLoan(address borrower) external view returns (uint256, uint256, bool)',
-  'function getYieldEarned(address lender) external view returns (uint256)',
+// Complete ABIs for the smart contracts (JSON format)
+export const LENDING_POOL_ABI = [
+  { type: 'function', name: 'deposit', stateMutability: 'payable', inputs: [], outputs: [] },
+  { type: 'function', name: 'withdraw', stateMutability: 'nonpayable', inputs: [{ name: 'amount', type: 'uint256' }], outputs: [] },
+  { type: 'function', name: 'borrow', stateMutability: 'nonpayable', inputs: [{ name: 'amount', type: 'uint256' }], outputs: [] },
+  { type: 'function', name: 'repay', stateMutability: 'payable', inputs: [], outputs: [] },
+  { type: 'function', name: 'claimYield', stateMutability: 'nonpayable', inputs: [], outputs: [] },
+  { type: 'function', name: 'getLenderBalance', stateMutability: 'view', inputs: [{ name: 'lender', type: 'address' }], outputs: [{ type: 'uint256' }] },
+  { type: 'function', name: 'getBorrowerLoan', stateMutability: 'view', inputs: [{ name: 'borrower', type: 'address' }], outputs: [{ name: 'amount', type: 'uint256' }, { name: 'interestRate', type: 'uint256' }, { name: 'isActive', type: 'bool' }, { name: 'totalOwed', type: 'uint256' }] },
+  { type: 'function', name: 'getYieldEarned', stateMutability: 'view', inputs: [{ name: 'lender', type: 'address' }], outputs: [{ type: 'uint256' }] },
+  { type: 'function', name: 'getAvailableLiquidity', stateMutability: 'view', inputs: [], outputs: [{ type: 'uint256' }] },
+  { type: 'function', name: 'getUtilizationRate', stateMutability: 'view', inputs: [], outputs: [{ type: 'uint256' }] },
+  { type: 'function', name: 'getPoolStats', stateMutability: 'view', inputs: [], outputs: [{ name: 'totalDeposited', type: 'uint256' }, { name: 'totalBorrowed', type: 'uint256' }, { name: 'availableLiquidity', type: 'uint256' }, { name: 'utilizationRate', type: 'uint256' }, { name: 'currentAPY', type: 'uint256' }] },
+  { type: 'function', name: 'lenders', stateMutability: 'view', inputs: [{ name: '', type: 'address' }], outputs: [{ name: 'depositedAmount', type: 'uint256' }, { name: 'depositTimestamp', type: 'uint256' }, { name: 'lastYieldClaim', type: 'uint256' }] },
+  { type: 'function', name: 'borrowers', stateMutability: 'view', inputs: [{ name: '', type: 'address' }], outputs: [{ name: 'borrowedAmount', type: 'uint256' }, { name: 'borrowTimestamp', type: 'uint256' }, { name: 'interestRate', type: 'uint256' }, { name: 'creditProfileLoanIndex', type: 'uint256' }, { name: 'isActive', type: 'bool' }] },
 ];
 
-const CREDIT_PROFILE_ABI = [
-  'function getScore(address user) external view returns (uint256)',
-  'function getLoanHistory(address user) external view returns (tuple(uint256 amount, uint256 timestamp, bool repaid)[])',
+export const CREDIT_PROFILE_ABI = [
+  { type: 'function', name: 'initializeProfile', stateMutability: 'nonpayable', inputs: [{ name: 'user', type: 'address' }], outputs: [] },
+  { type: 'function', name: 'recordLoan', stateMutability: 'nonpayable', inputs: [{ name: 'user', type: 'address' }, { name: 'amount', type: 'uint256' }, { name: 'interestRate', type: 'uint256' }], outputs: [] },
+  { type: 'function', name: 'recordRepayment', stateMutability: 'nonpayable', inputs: [{ name: 'user', type: 'address' }, { name: 'loanIndex', type: 'uint256' }, { name: 'onTime', type: 'bool' }], outputs: [] },
+  { type: 'function', name: 'calculateCreditScore', stateMutability: 'view', inputs: [{ name: 'user', type: 'address' }], outputs: [{ type: 'uint256' }] },
+  { type: 'function', name: 'getScore', stateMutability: 'view', inputs: [{ name: 'user', type: 'address' }], outputs: [{ type: 'uint256' }] },
+  { type: 'function', name: 'getProfile', stateMutability: 'view', inputs: [{ name: 'user', type: 'address' }], outputs: [{ name: 'creditScore', type: 'uint256' }, { name: 'totalLoans', type: 'uint256' }, { name: 'repaidLoans', type: 'uint256' }, { name: 'latePayments', type: 'uint256' }, { name: 'totalBorrowed', type: 'uint256' }, { name: 'totalRepaid', type: 'uint256' }] },
+  { type: 'function', name: 'getLoanHistory', stateMutability: 'view', inputs: [{ name: 'user', type: 'address' }], outputs: [{ type: 'tuple[]', components: [{ name: 'amount', type: 'uint256' }, { name: 'timestamp', type: 'uint256' }, { name: 'interestRate', type: 'uint256' }, { name: 'repaid', type: 'bool' }, { name: 'onTime', type: 'bool' }] }] },
+  { type: 'function', name: 'getLoan', stateMutability: 'view', inputs: [{ name: 'user', type: 'address' }, { name: 'loanIndex', type: 'uint256' }], outputs: [{ name: 'amount', type: 'uint256' }, { name: 'timestamp', type: 'uint256' }, { name: 'interestRate', type: 'uint256' }, { name: 'repaid', type: 'bool' }, { name: 'onTime', type: 'bool' }] },
+  { type: 'function', name: 'getMaxBorrowLimit', stateMutability: 'view', inputs: [{ name: 'user', type: 'address' }], outputs: [{ type: 'uint256' }] },
+  { type: 'function', name: 'getLoanCount', stateMutability: 'view', inputs: [{ name: 'user', type: 'address' }], outputs: [{ type: 'uint256' }] },
 ];
 
+// Hook to use write contract
 export const useContract = () => {
-  const { data: walletClient } = useWalletClient();
-  const [lendingPool, setLendingPool] = useState(null);
-  const [creditProfile, setCreditProfile] = useState(null);
-
-  useEffect(() => {
-    if (walletClient) {
-      const lending = getContract({
-        address: LENDING_POOL_ADDRESS,
-        abi: LENDING_POOL_ABI,
-        client: walletClient,
-      });
-      
-      const credit = getContract({
-        address: CREDIT_PROFILE_ADDRESS,
-        abi: CREDIT_PROFILE_ABI,
-        client: walletClient,
-      });
-      
-      setLendingPool(lending);
-      setCreditProfile(credit);
-    } else {
-      setLendingPool(null);
-      setCreditProfile(null);
-    }
-  }, [walletClient]);
+  const { writeContractAsync } = useWriteContract();
 
   return {
-    lendingPool,
-    creditProfile,
+    writeContractAsync,
+    LENDING_POOL_ADDRESS,
+    CREDIT_PROFILE_ADDRESS,
+    LENDING_POOL_ABI,
+    CREDIT_PROFILE_ABI,
   };
 };
