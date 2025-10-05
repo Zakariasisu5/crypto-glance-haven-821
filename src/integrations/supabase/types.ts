@@ -14,7 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      depin_projects: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          funding_current: number
+          funding_goal: number
+          funding_progress: number
+          id: string
+          image: string | null
+          name: string
+          roi: number | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description: string
+          funding_current?: number
+          funding_goal?: number
+          funding_progress?: number
+          id?: string
+          image?: string | null
+          name: string
+          roi?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          funding_current?: number
+          funding_goal?: number
+          funding_progress?: number
+          id?: string
+          image?: string | null
+          name?: string
+          roi?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
