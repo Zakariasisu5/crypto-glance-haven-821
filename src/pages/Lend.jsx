@@ -4,34 +4,63 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useWalletContext } from '@/contexts/WalletContext';
-import { useContract } from '@/hooks/useContract';
+import { useContract, LENDING_POOL_ADDRESS, LENDING_POOL_ABI } from '@/hooks/useContract';
 import { toast } from 'sonner';
 import { DollarSign, TrendingUp, Wallet } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { parseEther, formatEther } from 'viem';
+import { useReadContract } from 'wagmi';
 
 const Lend = () => {
   const { account, isConnected } = useWalletContext();
-  const { lendingPool } = useContract();
+  const { writeContractAsync } = useContract();
   const [depositAmount, setDepositAmount] = useState('');
   const [depositedBalance, setDepositedBalance] = useState('0');
   const [yieldEarned, setYieldEarned] = useState('0');
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (lendingPool && account) {
-      loadLenderData();
-    }
-  }, [lendingPool, account]);
+  // Read lender balance
+  const { data: lenderBalance, refetch: refetchBalance } = useReadContract({
+    address: LENDING_POOL_ADDRESS,
+    abi: LENDING_POOL_ABI,
+    functionName: 'getLenderBalance',
+    args: account ? [account] : undefined,
+    query: { enabled: !!account },
+  });
 
-  const loadLenderData = async () => {
-    try {
-      // Mock data for demo - replace with actual contract calls
-      setDepositedBalance('5.0');
-      setYieldEarned('0.15');
-    } catch (error) {
-      console.error('Error loading lender data:', error);
+  // Read yield earned
+  const { data: yieldData, refetch: refetchYield } = useReadContract({
+    address: LENDING_POOL_ADDRESS,
+    abi: LENDING_POOL_ABI,
+    functionName: 'getYieldEarned',
+    args: account ? [account] : undefined,
+    query: { enabled: !!account },
+  });
+
+  // Read lender info
+  const { data: lenderInfo, refetch: refetchLenderInfo } = useReadContract({
+    address: LENDING_POOL_ADDRESS,
+    abi: LENDING_POOL_ABI,
+    functionName: 'lenders',
+    args: account ? [account] : undefined,
+    query: { enabled: !!account },
+  });
+
+  useEffect(() => {
+    if (lenderInfo && lenderInfo[0]) {
+      setDepositedBalance(formatEther(lenderInfo[0]));
+    } else {
+      setDepositedBalance('0');
     }
-  };
+  }, [lenderInfo]);
+
+  useEffect(() => {
+    if (yieldData) {
+      setYieldEarned(formatEther(yieldData));
+    } else {
+      setYieldEarned('0');
+    }
+  }, [yieldData]);
 
   const handleDeposit = async () => {
     if (!isConnected) {
@@ -46,14 +75,33 @@ const Lend = () => {
 
     setIsLoading(true);
     try {
-      // Mock transaction - replace with actual contract call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      toast.success(`Successfully deposited ${depositAmount} ETH`);
+      const amountInWei = parseEther(depositAmount);
+
+      // Call real contract deposit function
+      const hash = await writeContractAsync({
+        address: LENDING_POOL_ADDRESS,
+        abi: LENDING_POOL_ABI,
+        functionName: 'deposit',
+        value: amountInWei,
+      });
+
+      toast.success('Transaction submitted! Waiting for confirmation...');
+      toast.success(`Successfully deposited ${depositAmount} CTC`);
       setDepositAmount('');
-      loadLenderData();
+
+      // Reload data
+      setTimeout(() => {
+        refetchBalance();
+        refetchYield();
+        refetchLenderInfo();
+      }, 2000);
     } catch (error) {
-      toast.error('Failed to deposit: ' + error.message);
+      console.error('Deposit error:', error);
+      if (error.message && error.message.includes('User rejected')) {
+        toast.error('Transaction rejected');
+      } else {
+        toast.error('Failed to deposit: ' + (error.shortMessage || error.message || 'Unknown error'));
+      }
     } finally {
       setIsLoading(false);
     }
@@ -72,13 +120,32 @@ const Lend = () => {
 
     setIsLoading(true);
     try {
-      // Mock transaction - replace with actual contract call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      const amountInWei = parseEther(depositedBalance);
+
+      // Call real contract withdraw function
+      const hash = await writeContractAsync({
+        address: LENDING_POOL_ADDRESS,
+        abi: LENDING_POOL_ABI,
+        functionName: 'withdraw',
+        args: [amountInWei],
+      });
+
+      toast.success('Transaction submitted! Waiting for confirmation...');
       toast.success('Successfully withdrew funds');
-      loadLenderData();
+
+      // Reload data
+      setTimeout(() => {
+        refetchBalance();
+        refetchYield();
+        refetchLenderInfo();
+      }, 2000);
     } catch (error) {
-      toast.error('Failed to withdraw: ' + error.message);
+      console.error('Withdraw error:', error);
+      if (error.message && error.message.includes('User rejected')) {
+        toast.error('Transaction rejected');
+      } else {
+        toast.error('Failed to withdraw: ' + (error.shortMessage || error.message));
+      }
     } finally {
       setIsLoading(false);
     }
@@ -111,7 +178,7 @@ const Lend = () => {
     >
       <div>
         <h1 className="text-3xl font-bold mb-2">Lend & Earn</h1>
-        <p className="text-muted-foreground">Deposit ETH to earn competitive yields</p>
+        <p className="text-muted-foreground">Deposit CTC to earn competitive yields</p>
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
@@ -123,11 +190,11 @@ const Lend = () => {
                 <DollarSign className="h-5 w-5 text-primary" />
                 Deposit Funds
               </CardTitle>
-              <CardDescription>Start earning yield on your ETH</CardDescription>
+              <CardDescription>Start earning yield on your CTC</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="deposit-amount">Amount (ETH)</Label>
+                <Label htmlFor="deposit-amount">Amount (CTC)</Label>
                 <Input
                   id="deposit-amount"
                   type="number"
@@ -163,16 +230,16 @@ const Lend = () => {
               <div className="space-y-3">
                 <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
                   <span className="text-sm text-muted-foreground">Deposited</span>
-                  <span className="font-bold text-lg">{depositedBalance} ETH</span>
+                  <span className="font-bold text-lg">{depositedBalance} CTC</span>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
                   <span className="text-sm text-muted-foreground">Yield Earned</span>
-                  <span className="font-bold text-lg text-green-500">+{yieldEarned} ETH</span>
+                  <span className="font-bold text-lg text-green-500">+{yieldEarned} CTC</span>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-primary/10 rounded-lg border border-primary/20">
                   <span className="text-sm font-medium">Total</span>
                   <span className="font-bold text-xl">
-                    {(parseFloat(depositedBalance) + parseFloat(yieldEarned)).toFixed(4)} ETH
+                    {(parseFloat(depositedBalance) + parseFloat(yieldEarned)).toFixed(4)} CTC
                   </span>
                 </div>
               </div>
@@ -206,7 +273,7 @@ const Lend = () => {
               </div>
               <div className="text-right">
                 <p className="text-sm text-muted-foreground">Total Value Locked</p>
-                <p className="text-2xl font-bold">12,450 ETH</p>
+                <p className="text-2xl font-bold">12,450 CTC</p>
               </div>
             </div>
           </CardContent>

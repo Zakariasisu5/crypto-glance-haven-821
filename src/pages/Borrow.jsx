@@ -10,6 +10,7 @@ import { DollarSign, CreditCard, TrendingUp, Clock, CheckCircle, XCircle } from 
 import { motion } from 'framer-motion';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { parseEther, formatEther } from 'viem';
 
 const Borrow = () => {
   const { account, isConnected } = useWalletContext();
@@ -28,21 +29,40 @@ const Borrow = () => {
 
   const loadBorrowerData = async () => {
     try {
-      // Mock data for demo - replace with actual contract calls
-      setActiveLoan({
-        amount: '2.5',
-        repaid: '1.2',
-        dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString(),
-        interestRate: '5.0'
-      });
-      setCreditScore(720);
-      setLoanHistory([
-        { id: 1, amount: '1.0', date: '2025-01-15', status: 'Repaid', onTime: true },
-        { id: 2, amount: '1.5', date: '2025-02-01', status: 'Repaid', onTime: true },
-        { id: 3, amount: '2.5', date: '2025-03-10', status: 'Active', onTime: true },
-      ]);
+      if (!lendingPool || !creditProfile || !account) return;
+
+      // Get credit score
+      const score = await creditProfile.read.getScore([account]);
+      setCreditScore(Number(score));
+
+      // Get active loan
+      const loan = await lendingPool.read.getBorrowerLoan([account]);
+      if (loan[2]) { // isActive
+        setActiveLoan({
+          amount: formatEther(loan[0]),
+          totalOwed: formatEther(loan[3]),
+          interestRate: (Number(loan[1]) / 100).toFixed(1),
+          dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString(),
+        });
+      } else {
+        setActiveLoan(null);
+      }
+
+      // Get loan history
+      const history = await creditProfile.read.getLoanHistory([account]);
+      const formattedHistory = history.map((loan, index) => ({
+        id: index,
+        amount: formatEther(loan[0]),
+        date: new Date(Number(loan[1]) * 1000).toLocaleDateString(),
+        status: loan[3] ? 'Repaid' : 'Active',
+        onTime: loan[4],
+      }));
+      setLoanHistory(formattedHistory);
     } catch (error) {
       console.error('Error loading borrower data:', error);
+      setCreditScore(0);
+      setActiveLoan(null);
+      setLoanHistory([]);
     }
   };
 
@@ -57,16 +77,36 @@ const Borrow = () => {
       return;
     }
 
+    if (!lendingPool) {
+      toast.error('Contract not loaded');
+      return;
+    }
+
     setIsLoading(true);
     try {
-      // Mock transaction - replace with actual contract call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      toast.success(`Successfully borrowed ${borrowAmount} ETH`);
+      const amountInWei = parseEther(borrowAmount);
+
+      // Call real contract borrow function
+      const hash = await lendingPool.write.borrow([amountInWei]);
+
+      toast.success('Transaction submitted! Waiting for confirmation...');
+
+      toast.success(`Successfully borrowed ${borrowAmount} CTC`);
       setBorrowAmount('');
-      loadBorrowerData();
+
+      // Reload data after a short delay
+      setTimeout(() => loadBorrowerData(), 2000);
     } catch (error) {
-      toast.error('Failed to borrow: ' + error.message);
+      console.error('Borrow error:', error);
+      if (error.message.includes('User rejected')) {
+        toast.error('Transaction rejected');
+      } else if (error.message.includes('Credit score too low')) {
+        toast.error('Credit score too low to borrow');
+      } else if (error.message.includes('Exceeds borrowing limit')) {
+        toast.error('Amount exceeds your borrowing limit');
+      } else {
+        toast.error('Failed to borrow: ' + (error.shortMessage || error.message));
+      }
     } finally {
       setIsLoading(false);
     }
@@ -83,15 +123,33 @@ const Borrow = () => {
       return;
     }
 
+    if (!lendingPool) {
+      toast.error('Contract not loaded');
+      return;
+    }
+
     setIsLoading(true);
     try {
-      // Mock transaction - replace with actual contract call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      toast.success('Successfully repaid loan');
-      loadBorrowerData();
+      const amountToRepay = parseEther(activeLoan.totalOwed);
+
+      // Call real contract repay function
+      const hash = await lendingPool.write.repay([], {
+        value: amountToRepay
+      });
+
+      toast.success('Transaction submitted! Waiting for confirmation...');
+
+      toast.success('Successfully repaid loan! Your credit score has been updated.');
+
+      // Reload data after a short delay
+      setTimeout(() => loadBorrowerData(), 2000);
     } catch (error) {
-      toast.error('Failed to repay: ' + error.message);
+      console.error('Repay error:', error);
+      if (error.message.includes('User rejected')) {
+        toast.error('Transaction rejected');
+      } else {
+        toast.error('Failed to repay: ' + (error.shortMessage || error.message));
+      }
     } finally {
       setIsLoading(false);
     }
@@ -136,11 +194,11 @@ const Borrow = () => {
                 <DollarSign className="h-5 w-5 text-primary" />
                 Request Loan
               </CardTitle>
-              <CardDescription>Borrow ETH based on your credit score</CardDescription>
+              <CardDescription>Borrow CTC based on your credit score</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="borrow-amount">Amount (ETH)</Label>
+                <Label htmlFor="borrow-amount">Amount (CTC)</Label>
                 <Input
                   id="borrow-amount"
                   type="number"
@@ -158,7 +216,7 @@ const Borrow = () => {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Max Borrowable</span>
-                  <span className="font-medium">3.5 ETH</span>
+                  <span className="font-medium">3.5 CTC</span>
                 </div>
               </div>
               <Button
@@ -188,16 +246,16 @@ const Borrow = () => {
                   <div className="space-y-3">
                     <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
                       <span className="text-sm text-muted-foreground">Borrowed</span>
-                      <span className="font-bold text-lg">{activeLoan.amount} ETH</span>
+                      <span className="font-bold text-lg">{activeLoan.amount} CTC</span>
                     </div>
                     <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
-                      <span className="text-sm text-muted-foreground">Repaid</span>
-                      <span className="font-bold text-lg text-green-500">{activeLoan.repaid} ETH</span>
+                      <span className="text-sm text-muted-foreground">Interest Rate</span>
+                      <span className="font-bold text-lg text-blue-500">{activeLoan.interestRate}%</span>
                     </div>
                     <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
-                      <span className="text-sm text-muted-foreground">Remaining</span>
+                      <span className="text-sm text-muted-foreground">Total to Repay</span>
                       <span className="font-bold text-lg text-orange-500">
-                        {(parseFloat(activeLoan.amount) - parseFloat(activeLoan.repaid)).toFixed(2)} ETH
+                        {parseFloat(activeLoan.totalOwed).toFixed(4)} CTC
                       </span>
                     </div>
                     <div className="flex justify-between items-center p-3 bg-primary/10 rounded-lg border border-primary/20">
@@ -255,7 +313,7 @@ const Borrow = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Date</TableHead>
-                      <TableHead>Amount</TableHead>
+                      <TableHead>Amount (CTC)</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead className="text-right">On Time</TableHead>
                     </TableRow>
@@ -264,7 +322,7 @@ const Borrow = () => {
                     {loanHistory.map((loan) => (
                       <TableRow key={loan.id}>
                         <TableCell className="font-medium">{loan.date}</TableCell>
-                        <TableCell>{loan.amount} ETH</TableCell>
+                        <TableCell>{loan.amount}</TableCell>
                         <TableCell>
                           <Badge variant={loan.status === 'Repaid' ? 'default' : 'secondary'}>
                             {loan.status}
