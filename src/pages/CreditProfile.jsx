@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -5,10 +6,51 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import StatsCard from '@/components/StatsCard';
 import { mockMoonCreditFiData, mockChartData } from '@/data/mockData';
 import { User, CreditCard, TrendingUp, DollarSign } from 'lucide-react';
+import { useWalletContext } from '@/contexts/WalletContext';
+import { useContract } from '@/hooks/useContract';
+import { formatEther } from 'viem';
 
 const CreditProfile = () => {
-  const { creditProfile } = mockMoonCreditFiData;
+  const { account, isConnected } = useWalletContext();
+  const { creditProfile: creditContract } = useContract();
+  const [creditProfile, setCreditProfile] = useState(mockMoonCreditFiData.creditProfile);
+  const [isLoading, setIsLoading] = useState(false);
   const { creditScoreHistory } = mockChartData;
+
+  useEffect(() => {
+    if (account && creditContract) {
+      loadCreditProfile();
+    }
+  }, [account, creditContract]);
+
+  const loadCreditProfile = async () => {
+    try {
+      setIsLoading(true);
+      if (!creditContract || !account) return;
+
+      // Get profile data
+      const profile = await creditContract.read.getProfile([account]);
+      const history = await creditContract.read.getLoanHistory([account]);
+
+      const formattedHistory = history.map((loan) => ({
+        date: new Date(Number(loan[1]) * 1000).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit' }),
+        amount: parseFloat(formatEther(loan[0])),
+        status: loan[3] ? 'repaid' : 'active',
+        rate: Number(loan[2]) / 100,
+      }));
+
+      setCreditProfile({
+        creditScore: Number(profile[0]) || 500,
+        borrowingHistory: formattedHistory,
+        availableCredit: parseFloat(formatEther(profile[5])),
+        utilizedCredit: parseFloat(formatEther(profile[4]) - formatEther(profile[5])),
+      });
+    } catch (error) {
+      console.error('Error loading credit profile:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const getStatusColor = (status) => {
     switch (status) {
