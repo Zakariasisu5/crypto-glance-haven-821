@@ -15,8 +15,9 @@ const Sidebar = ({ sidebarOpen = false, onClose }) => {
   ];
 
   return (
-    // On mobile: hidden by default, slide in when sidebarOpen is true
-    <aside className={`fixed z-50 inset-y-0 left-0 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:static md:inset-auto md:w-64 transition-transform duration-200 bg-card border-r border-border p-4 w-64`}> 
+    // On mobile: hidden by default, slide in when sidebarOpen is true.
+    // On md+ screens the sidebar is sticky beneath the navbar so it stays visible while scrolling.
+    <aside className={`fixed z-50 inset-y-0 left-0 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:sticky md:top-16 md:inset-y-auto md:h-[calc(100vh-4rem)] md:w-64 transition-transform duration-200 bg-card border-r border-border p-4 w-64 overflow-auto`}> 
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold mooncreditfi-glow">MoonCreditFi</h2>
