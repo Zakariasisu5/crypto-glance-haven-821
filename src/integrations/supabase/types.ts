@@ -59,6 +59,50 @@ export type Database = {
         }
         Relationships: []
       }
+      user_contributions: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          nft_token_id: string | null
+          ownership_percentage: number
+          project_id: string
+          transaction_hash: string
+          updated_at: string
+          user_address: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          nft_token_id?: string | null
+          ownership_percentage?: number
+          project_id: string
+          transaction_hash: string
+          updated_at?: string
+          user_address: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          nft_token_id?: string | null
+          ownership_percentage?: number
+          project_id?: string
+          transaction_hash?: string
+          updated_at?: string
+          user_address?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_contributions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "depin_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

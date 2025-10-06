@@ -3,6 +3,7 @@ import { useReadContract, useWriteContract, useWatchContractEvent } from 'wagmi'
 // Deployed on Creditcoin Testnet
 export const LENDING_POOL_ADDRESS = '0x6AFa3a9BDc76e7e2a88104cf24420e7Bc9F07728';
 export const CREDIT_PROFILE_ADDRESS = '0x32228b52A411528F521412B4cEb1F0D21e84bDed';
+export const DEPIN_FINANCE_ADDRESS = '0x0000000000000000000000000000000000000000'; // Update after deployment
 
 // Complete ABIs for the smart contracts (JSON format)
 export const LENDING_POOL_ABI = [
@@ -39,6 +40,20 @@ export const CREDIT_PROFILE_ABI = [
   { type: 'function', name: 'getLoanCount', stateMutability: 'view', inputs: [{ name: 'user', type: 'address' }], outputs: [{ type: 'uint256' }] },
 ];
 
+// DePIN Finance Contract ABI
+export const DEPIN_FINANCE_ABI = [
+  { type: 'function', name: 'fundProject', stateMutability: 'payable', inputs: [{ name: 'projectId', type: 'uint256' }], outputs: [] },
+  { type: 'function', name: 'getContribution', stateMutability: 'view', inputs: [{ name: 'contributor', type: 'address' }, { name: 'projectId', type: 'uint256' }], outputs: [{ name: 'amount', type: 'uint256' }, { name: 'ownershipPercentage', type: 'uint256' }, { name: 'nftTokenId', type: 'uint256' }] },
+  { type: 'function', name: 'getUserContributions', stateMutability: 'view', inputs: [{ name: 'contributor', type: 'address' }], outputs: [{ type: 'uint256[]' }] },
+  { type: 'function', name: 'getProjectFunding', stateMutability: 'view', inputs: [{ name: 'projectId', type: 'uint256' }], outputs: [{ name: 'totalFunded', type: 'uint256' }, { name: 'contributorsCount', type: 'uint256' }] },
+  { type: 'function', name: 'mintProofOfImpactNFT', stateMutability: 'nonpayable', inputs: [{ name: 'contributor', type: 'address' }, { name: 'projectId', type: 'uint256' }], outputs: [{ name: 'tokenId', type: 'uint256' }] },
+  { type: 'function', name: 'calculateOwnershipPercentage', stateMutability: 'view', inputs: [{ name: 'contribution', type: 'uint256' }, { name: 'projectId', type: 'uint256' }], outputs: [{ type: 'uint256' }] },
+  { type: 'function', name: 'distributeYield', stateMutability: 'nonpayable', inputs: [{ name: 'projectId', type: 'uint256' }], outputs: [] },
+  { type: 'event', name: 'ProjectFunded', inputs: [{ name: 'projectId', type: 'uint256', indexed: true }, { name: 'contributor', type: 'address', indexed: true }, { name: 'amount', type: 'uint256', indexed: false }, { name: 'ownershipPercentage', type: 'uint256', indexed: false }] },
+  { type: 'event', name: 'NFTMinted', inputs: [{ name: 'contributor', type: 'address', indexed: true }, { name: 'projectId', type: 'uint256', indexed: true }, { name: 'tokenId', type: 'uint256', indexed: false }] },
+  { type: 'event', name: 'YieldDistributed', inputs: [{ name: 'projectId', type: 'uint256', indexed: true }, { name: 'totalYield', type: 'uint256', indexed: false }] },
+];
+
 // Hook to use write contract
 export const useContract = () => {
   const { writeContractAsync } = useWriteContract();
@@ -47,7 +62,9 @@ export const useContract = () => {
     writeContractAsync,
     LENDING_POOL_ADDRESS,
     CREDIT_PROFILE_ADDRESS,
+    DEPIN_FINANCE_ADDRESS,
     LENDING_POOL_ABI,
     CREDIT_PROFILE_ABI,
+    DEPIN_FINANCE_ABI,
   };
 };
