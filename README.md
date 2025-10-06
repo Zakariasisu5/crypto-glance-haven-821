@@ -1,8 +1,8 @@
-### MoonCreditFi is a Creditcoin-inspired DeFi + DePIN platform that merges blockchain-based credit profiles, ethical lending pools, and real-world decentralized infrastructure funding — all powered by transparency and user trust.
+### MoonCreditFi
+MooncreditFi is a Creditcoin-inspired DeFi + DePIN platform that merges blockchain-based credit profiles, ethical lending pools, and real-world decentralized infrastructure funding — all powered by transparency and user trust.
 
 The platform bridges real crypto market data, Creditcoin metrics, and on-chain lending features to promote financial inclusion and real-world impact.
 
----
 
 ### Features
 
