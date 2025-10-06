@@ -8,6 +8,7 @@ import { useContract } from '@/hooks/useContract';
 import { toast } from 'sonner';
 import { DollarSign, CreditCard, TrendingUp, Clock, CheckCircle, XCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useBlockNumber } from 'wagmi';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { parseEther, formatEther } from 'viem';
@@ -26,6 +27,12 @@ const Borrow = () => {
       loadBorrowerData();
     }
   }, [account, lendingPool, creditProfile]);
+
+  // Refresh on new block
+  const { data: blockNumber } = useBlockNumber({ watch: true });
+  useEffect(() => {
+    if (blockNumber && account) loadBorrowerData();
+  }, [blockNumber]);
 
   const loadBorrowerData = async () => {
     try {

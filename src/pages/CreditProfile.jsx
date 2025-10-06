@@ -4,24 +4,33 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import StatsCard from '@/components/StatsCard';
-import { mockMoonCreditFiData, mockChartData } from '@/data/mockData';
+// Using on-chain data; mock data removed
 import { User, CreditCard, TrendingUp, DollarSign } from 'lucide-react';
 import { useWalletContext } from '@/contexts/WalletContext';
 import { useContract } from '@/hooks/useContract';
 import { formatEther } from 'viem';
+import { useBlockNumber } from 'wagmi';
 
 const CreditProfile = () => {
   const { account, isConnected } = useWalletContext();
   const { creditProfile: creditContract } = useContract();
-  const [creditProfile, setCreditProfile] = useState(mockMoonCreditFiData.creditProfile);
+  const [creditProfile, setCreditProfile] = useState({ creditScore: 0, borrowingHistory: [], availableCredit: 0, utilizedCredit: 0 });
   const [isLoading, setIsLoading] = useState(false);
-  const { creditScoreHistory } = mockChartData;
+  const creditScoreHistory = [];
 
   useEffect(() => {
     if (account && creditContract) {
       loadCreditProfile();
     }
   }, [account, creditContract]);
+
+  // Refresh profile on each new block
+  const { data: blockNumber } = useBlockNumber({ watch: true });
+  useEffect(() => {
+    if (blockNumber && account && creditContract) {
+      loadCreditProfile();
+    }
+  }, [blockNumber]);
 
   const loadCreditProfile = async () => {
     try {

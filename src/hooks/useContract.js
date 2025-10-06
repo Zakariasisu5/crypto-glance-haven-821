@@ -19,6 +19,11 @@ export const LENDING_POOL_ABI = [
   { type: 'function', name: 'getPoolStats', stateMutability: 'view', inputs: [], outputs: [{ name: 'totalDeposited', type: 'uint256' }, { name: 'totalBorrowed', type: 'uint256' }, { name: 'availableLiquidity', type: 'uint256' }, { name: 'utilizationRate', type: 'uint256' }, { name: 'currentAPY', type: 'uint256' }] },
   { type: 'function', name: 'lenders', stateMutability: 'view', inputs: [{ name: '', type: 'address' }], outputs: [{ name: 'depositedAmount', type: 'uint256' }, { name: 'depositTimestamp', type: 'uint256' }, { name: 'lastYieldClaim', type: 'uint256' }] },
   { type: 'function', name: 'borrowers', stateMutability: 'view', inputs: [{ name: '', type: 'address' }], outputs: [{ name: 'borrowedAmount', type: 'uint256' }, { name: 'borrowTimestamp', type: 'uint256' }, { name: 'interestRate', type: 'uint256' }, { name: 'creditProfileLoanIndex', type: 'uint256' }, { name: 'isActive', type: 'bool' }] },
+  // Events emitted by the lending pool so frontends can listen for real-time updates
+  { type: 'event', name: 'Deposit', inputs: [{ name: 'lender', type: 'address', indexed: true }, { name: 'amount', type: 'uint256', indexed: false }] },
+  { type: 'event', name: 'Withdraw', inputs: [{ name: 'lender', type: 'address', indexed: true }, { name: 'amount', type: 'uint256', indexed: false }] },
+  { type: 'event', name: 'Borrow', inputs: [{ name: 'borrower', type: 'address', indexed: true }, { name: 'amount', type: 'uint256', indexed: false }] },
+  { type: 'event', name: 'Repay', inputs: [{ name: 'borrower', type: 'address', indexed: true }, { name: 'amount', type: 'uint256', indexed: false }] },
 ];
 
 export const CREDIT_PROFILE_ABI = [

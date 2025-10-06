@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 import { DollarSign, TrendingUp, Wallet } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { parseEther, formatEther } from 'viem';
-import { useReadContract } from 'wagmi';
+import { useReadContract, useBlockNumber } from 'wagmi';
 
 const Lend = () => {
   const { account, isConnected } = useWalletContext();
@@ -45,6 +45,18 @@ const Lend = () => {
     args: account ? [account] : undefined,
     query: { enabled: !!account },
   });
+
+  // Refetch on new blocks for near-real-time updates
+  const { data: blockNumber } = useBlockNumber({ watch: true });
+
+  useEffect(() => {
+    if (blockNumber) {
+      // lightweight refetch on new block
+      refetchBalance && refetchBalance();
+      refetchYield && refetchYield();
+      refetchLenderInfo && refetchLenderInfo();
+    }
+  }, [blockNumber]);
 
   useEffect(() => {
     if (lenderInfo && lenderInfo[0]) {

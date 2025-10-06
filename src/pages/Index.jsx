@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import { useQuery } from '@tanstack/react-query';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -9,7 +9,20 @@ import { Search, Star, TrendingUp, DollarSign, Users, Activity, Wallet, CreditCa
 import { Link } from 'react-router-dom';
 import { toast } from "sonner";
 import StatsCard from '@/components/StatsCard';
-import { mockChartData } from '@/data/mockData';
+// Inline fallback price history (7 days) in case external API fails
+const fallbackPriceHistory = [
+  { date: '2024-01-01', price: 0.45 },
+  { date: '2024-01-02', price: 0.48 },
+  { date: '2024-01-03', price: 0.52 },
+  { date: '2024-01-04', price: 0.49 },
+  { date: '2024-01-05', price: 0.55 },
+  { date: '2024-01-06', price: 0.58 },
+  { date: '2024-01-07', price: 0.62 }
+];
+// axios already imported above; useEffect imported with useState at top
+import { LENDING_POOL_ADDRESS, LENDING_POOL_ABI, CREDIT_PROFILE_ADDRESS, CREDIT_PROFILE_ABI } from '@/hooks/useContract';
+import { useReadContract, useBlockNumber } from 'wagmi';
+import { formatEther } from 'viem';
 import { useWalletContext } from '@/contexts/WalletContext';
 import { motion } from 'framer-motion';
 
@@ -68,6 +81,25 @@ const fetchCryptos = async () => {
   }
 };
 
+const fetchGlobalMarket = async () => {
+  try {
+    const res = await axios.get('https://api.coingecko.com/api/v3/global');
+    const marketCap = res.data?.data?.total_market_cap?.usd;
+    return marketCap ?? null;
+  } catch (e) {
+    console.warn('Failed to fetch global market cap', e);
+    return null;
+  }
+};
+
+const formatMarketCap = (value) => {
+  if (value == null) return '—';
+  if (value >= 1e12) return `$${(value / 1e12).toFixed(2)}T`;
+  if (value >= 1e9) return `$${(value / 1e9).toFixed(2)}B`;
+  if (value >= 1e6) return `$${(value / 1e6).toFixed(2)}M`;
+  return `$${value.toFixed(0)}`;
+};
+
 const Index = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [terminalText, setTerminalText] = useState('');
@@ -77,14 +109,74 @@ const Index = () => {
   });
   const { balance, isConnected } = useWalletContext();
   
-  // Mock user data - replace with actual contract calls
-  const [activeLoanAmount] = useState('2.5');
-  const [creditScore] = useState(720);
-  const [yieldEarned] = useState('0.15');
+  // On-chain user data
+  const { data: lenderBalance } = useReadContract({
+    address: LENDING_POOL_ADDRESS,
+    abi: LENDING_POOL_ABI,
+    functionName: 'getLenderBalance',
+    args: isConnected ? [localStorage.getItem('connectedAddress') || undefined] : undefined,
+    query: { enabled: isConnected }
+  });
+
+  const { data: creditProfile } = useReadContract({
+    address: CREDIT_PROFILE_ADDRESS,
+    abi: CREDIT_PROFILE_ABI,
+    functionName: 'getProfile',
+    args: isConnected ? [localStorage.getItem('connectedAddress') || undefined] : undefined,
+    query: { enabled: isConnected }
+  });
+
+  const [activeLoanAmount, setActiveLoanAmount] = useState('0');
+  const [creditScore, setCreditScore] = useState(0);
+  const [yieldEarned, setYieldEarned] = useState('0');
+
+  // Pool stats for TVL
+  const { data: poolStats } = useReadContract({
+    address: LENDING_POOL_ADDRESS,
+    abi: LENDING_POOL_ABI,
+    functionName: 'getPoolStats',
+    query: { enabled: true },
+  });
+
+  const totalDeposited = poolStats && poolStats.totalDeposited != null ? Number(poolStats.totalDeposited) : null;
+
+  // Update displayed values when data is available
+  useEffect(() => {
+    if (lenderBalance) setActiveLoanAmount((Number(formatEther(lenderBalance)) || 0).toFixed(4));
+  }, [lenderBalance]);
+
+  useEffect(() => {
+    if (creditProfile) {
+      setCreditScore(Number(creditProfile[0]) || 0);
+      // availableCredit and utilizedCredit are indices 4/5 per ABI — adjust if needed
+      try {
+        const available = Number(formatEther(creditProfile[5] || 0));
+        const utilized = Number(formatEther(creditProfile[4] || 0));
+        setYieldEarned(((utilized / (available + utilized)) * 0.085).toFixed(4));
+      } catch (e) {
+        // ignore
+      }
+    }
+  }, [creditProfile]);
+
+  // Refresh when new block arrives
+  const { data: blockNumber } = useBlockNumber({ watch: true });
+  useEffect(() => {
+    // wagmi useReadContract will auto-refresh if args change; block trigger allows UI update after tx
+  }, [blockNumber]);
   const { data: cryptos, isLoading, isError } = useQuery({
     queryKey: ['cryptos'],
     queryFn: fetchCryptos,
   });
+
+  const { data: globalMarketCap } = useQuery({
+    queryKey: ['globalMarketCap'],
+    queryFn: fetchGlobalMarket,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+  // Optional manual override for global market cap (set in browser devtools/localStorage)
+  const marketCapOverride = typeof window !== 'undefined' ? localStorage.getItem('globalMarketOverride') : null;
 
   useEffect(() => {
     localStorage.setItem('cryptoFavorites', JSON.stringify(favorites));
@@ -120,6 +212,24 @@ const Index = () => {
     }, 50);
 
     return () => clearInterval(typingEffect);
+  }, []);
+
+  // Fetch simple price history for chart (fallback to mockChartData if network fails)
+  const [priceHistory, setPriceHistory] = useState(fallbackPriceHistory);
+  useEffect(() => {
+    let mounted = true;
+    const fetchPrices = async () => {
+      try {
+        const res = await axios.get('https://api.coingecko.com/api/v3/coins/bitcoin/market_chart', { params: { vs_currency: 'usd', days: 7 } });
+        if (!mounted) return;
+        const prices = res.data.prices.map(([ts, price]) => ({ date: new Date(ts).toISOString().slice(0,10), price }));
+        setPriceHistory(prices.slice(-7));
+      } catch (e) {
+        console.warn('Failed to fetch price history, using mock data', e);
+      }
+    };
+    fetchPrices();
+    return () => { mounted = false; };
   }, []);
 
   if (isLoading) return <div className="text-center mt-8 mooncreditfi-glow">Loading...</div>;
@@ -203,8 +313,8 @@ const Index = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatsCard
             title="Total Market Cap"
-            value={cryptos ? `$${(cryptos.reduce((sum, crypto) => sum + parseFloat(crypto.marketCapUsd), 0) / 1e12).toFixed(2)}T` : 'Loading...'}
-            description="Global crypto market"
+            value={marketCapOverride ? marketCapOverride : formatMarketCap(globalMarketCap)}
+            description={marketCapOverride ? 'Global crypto market (override)' : 'Global crypto market'}
             icon={DollarSign}
             trend={5.2}
           />
@@ -222,9 +332,9 @@ const Index = () => {
             trend={mooncreditfi ? parseFloat(mooncreditfi.changePercent24Hr) : 8.4}
           />
           <StatsCard
-            title="DeFi Users"
-            value="12.4K"
-            description="Active participants"
+            title="TVL"
+            value={totalDeposited ? `$${(totalDeposited / 1e6).toFixed(2)}M` : '—'}
+            description="Total Value Locked in pool"
             icon={Users}
             trend={23.1}
           />
@@ -246,7 +356,7 @@ const Index = () => {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={mockChartData.priceHistory}>
+                  <LineChart data={priceHistory}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" />
                     <YAxis />

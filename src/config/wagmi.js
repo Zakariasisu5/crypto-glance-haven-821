@@ -32,7 +32,7 @@ export const creditcoinTestnet = defineChain({
 
 export const config = getDefaultConfig({
   appName: 'MoonCreditFi',
-  projectId: 'f8c7b74f5ffedea9c3e1b9a4d7f0e8a2', // Default WalletConnect Project ID - Replace with your own from https://cloud.walletconnect.com
+  projectId: 'd48baa2d98ba9f2173325f9152b48925',
   chains: [creditcoinTestnet, mainnet, sepolia, polygon, optimism, arbitrum, base],
   ssr: false,
 });
