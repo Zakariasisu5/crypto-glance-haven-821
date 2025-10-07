@@ -3,55 +3,889 @@ import { useReadContract, useWriteContract, useWatchContractEvent } from 'wagmi'
 // Deployed on Creditcoin Testnet
 export const LENDING_POOL_ADDRESS = '0x6AFa3a9BDc76e7e2a88104cf24420e7Bc9F07728';
 export const CREDIT_PROFILE_ADDRESS = '0x32228b52A411528F521412B4cEb1F0D21e84bDed';
-export const DEPIN_FINANCE_ADDRESS = '0x0000000000000000000000000000000000000000'; // Update after deployment
+export const DEPIN_FINANCE_ADDRESS = '0x406100C8BF3886DBcDE94c642d4a8530042A44C9'; // Paste the actual address
+export const DEPIN_FINANCE_ABI = [
+	{
+		"inputs": [],
+		"name": "claimYield",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "contribute",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "distributeYield",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address payable",
+				"name": "recipient",
+				"type": "address"
+			}
+		],
+		"name": "fundInfrastructure",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "contributor",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "Contributed",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "recipient",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "InfrastructureFunded",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "NFTMinted",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "contributor",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "YieldClaimed",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "YieldDistributed",
+		"type": "event"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "receive"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_owner",
+				"type": "address"
+			}
+		],
+		"name": "balanceOf",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "contributors",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "shares",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "rewardDebt",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "cumulativeYieldPerShare",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			}
+		],
+		"name": "getContributor",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "shares",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "pendingYieldAmount",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getPoolStats",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "_totalShares",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_totalContributions",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_totalYieldsDistributed",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_availableBalance",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "ownerOf",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_contributor",
+				"type": "address"
+			}
+		],
+		"name": "pendingYield",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalContributions",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalShares",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalYieldsDistributed",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
 
 // Complete ABIs for the smart contracts (JSON format)
 export const LENDING_POOL_ABI = [
-  { type: 'function', name: 'deposit', stateMutability: 'payable', inputs: [], outputs: [] },
-  { type: 'function', name: 'withdraw', stateMutability: 'nonpayable', inputs: [{ name: 'amount', type: 'uint256' }], outputs: [] },
-  { type: 'function', name: 'borrow', stateMutability: 'nonpayable', inputs: [{ name: 'amount', type: 'uint256' }], outputs: [] },
-  { type: 'function', name: 'repay', stateMutability: 'payable', inputs: [], outputs: [] },
-  { type: 'function', name: 'claimYield', stateMutability: 'nonpayable', inputs: [], outputs: [] },
-  { type: 'function', name: 'getLenderBalance', stateMutability: 'view', inputs: [{ name: 'lender', type: 'address' }], outputs: [{ type: 'uint256' }] },
-  { type: 'function', name: 'getBorrowerLoan', stateMutability: 'view', inputs: [{ name: 'borrower', type: 'address' }], outputs: [{ name: 'amount', type: 'uint256' }, { name: 'interestRate', type: 'uint256' }, { name: 'isActive', type: 'bool' }, { name: 'totalOwed', type: 'uint256' }] },
-  { type: 'function', name: 'getYieldEarned', stateMutability: 'view', inputs: [{ name: 'lender', type: 'address' }], outputs: [{ type: 'uint256' }] },
-  { type: 'function', name: 'getAvailableLiquidity', stateMutability: 'view', inputs: [], outputs: [{ type: 'uint256' }] },
-  { type: 'function', name: 'getUtilizationRate', stateMutability: 'view', inputs: [], outputs: [{ type: 'uint256' }] },
-  { type: 'function', name: 'getPoolStats', stateMutability: 'view', inputs: [], outputs: [{ name: 'totalDeposited', type: 'uint256' }, { name: 'totalBorrowed', type: 'uint256' }, { name: 'availableLiquidity', type: 'uint256' }, { name: 'utilizationRate', type: 'uint256' }, { name: 'currentAPY', type: 'uint256' }] },
-  { type: 'function', name: 'lenders', stateMutability: 'view', inputs: [{ name: '', type: 'address' }], outputs: [{ name: 'depositedAmount', type: 'uint256' }, { name: 'depositTimestamp', type: 'uint256' }, { name: 'lastYieldClaim', type: 'uint256' }] },
-  { type: 'function', name: 'borrowers', stateMutability: 'view', inputs: [{ name: '', type: 'address' }], outputs: [{ name: 'borrowedAmount', type: 'uint256' }, { name: 'borrowTimestamp', type: 'uint256' }, { name: 'interestRate', type: 'uint256' }, { name: 'creditProfileLoanIndex', type: 'uint256' }, { name: 'isActive', type: 'bool' }] },
-  // Events emitted by the lending pool so frontends can listen for real-time updates
-  { type: 'event', name: 'Deposit', inputs: [{ name: 'lender', type: 'address', indexed: true }, { name: 'amount', type: 'uint256', indexed: false }] },
-  { type: 'event', name: 'Withdraw', inputs: [{ name: 'lender', type: 'address', indexed: true }, { name: 'amount', type: 'uint256', indexed: false }] },
-  { type: 'event', name: 'Borrow', inputs: [{ name: 'borrower', type: 'address', indexed: true }, { name: 'amount', type: 'uint256', indexed: false }] },
-  { type: 'event', name: 'Repay', inputs: [{ name: 'borrower', type: 'address', indexed: true }, { name: 'amount', type: 'uint256', indexed: false }] },
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			}
+		],
+		"name": "getLoanCount",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			}
+		],
+		"name": "getMaxBorrowLimit",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			}
+		],
+		"name": "getScore",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "interestRate",
+				"type": "uint256"
+			}
+		],
+		"name": "recordLoan",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "loanIndex",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "onTime",
+				"type": "bool"
+			}
+		],
+		"name": "recordRepayment",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
 ];
 
 export const CREDIT_PROFILE_ABI = [
-  { type: 'function', name: 'initializeProfile', stateMutability: 'nonpayable', inputs: [{ name: 'user', type: 'address' }], outputs: [] },
-  { type: 'function', name: 'recordLoan', stateMutability: 'nonpayable', inputs: [{ name: 'user', type: 'address' }, { name: 'amount', type: 'uint256' }, { name: 'interestRate', type: 'uint256' }], outputs: [] },
-  { type: 'function', name: 'recordRepayment', stateMutability: 'nonpayable', inputs: [{ name: 'user', type: 'address' }, { name: 'loanIndex', type: 'uint256' }, { name: 'onTime', type: 'bool' }], outputs: [] },
-  { type: 'function', name: 'calculateCreditScore', stateMutability: 'view', inputs: [{ name: 'user', type: 'address' }], outputs: [{ type: 'uint256' }] },
-  { type: 'function', name: 'getScore', stateMutability: 'view', inputs: [{ name: 'user', type: 'address' }], outputs: [{ type: 'uint256' }] },
-  { type: 'function', name: 'getProfile', stateMutability: 'view', inputs: [{ name: 'user', type: 'address' }], outputs: [{ name: 'creditScore', type: 'uint256' }, { name: 'totalLoans', type: 'uint256' }, { name: 'repaidLoans', type: 'uint256' }, { name: 'latePayments', type: 'uint256' }, { name: 'totalBorrowed', type: 'uint256' }, { name: 'totalRepaid', type: 'uint256' }] },
-  { type: 'function', name: 'getLoanHistory', stateMutability: 'view', inputs: [{ name: 'user', type: 'address' }], outputs: [{ type: 'tuple[]', components: [{ name: 'amount', type: 'uint256' }, { name: 'timestamp', type: 'uint256' }, { name: 'interestRate', type: 'uint256' }, { name: 'repaid', type: 'bool' }, { name: 'onTime', type: 'bool' }] }] },
-  { type: 'function', name: 'getLoan', stateMutability: 'view', inputs: [{ name: 'user', type: 'address' }, { name: 'loanIndex', type: 'uint256' }], outputs: [{ name: 'amount', type: 'uint256' }, { name: 'timestamp', type: 'uint256' }, { name: 'interestRate', type: 'uint256' }, { name: 'repaid', type: 'bool' }, { name: 'onTime', type: 'bool' }] },
-  { type: 'function', name: 'getMaxBorrowLimit', stateMutability: 'view', inputs: [{ name: 'user', type: 'address' }], outputs: [{ type: 'uint256' }] },
-  { type: 'function', name: 'getLoanCount', stateMutability: 'view', inputs: [{ name: 'user', type: 'address' }], outputs: [{ type: 'uint256' }] },
-];
-
-// DePIN Finance Contract ABI
-export const DEPIN_FINANCE_ABI = [
-  { type: 'function', name: 'fundProject', stateMutability: 'payable', inputs: [{ name: 'projectId', type: 'uint256' }], outputs: [] },
-  { type: 'function', name: 'getContribution', stateMutability: 'view', inputs: [{ name: 'contributor', type: 'address' }, { name: 'projectId', type: 'uint256' }], outputs: [{ name: 'amount', type: 'uint256' }, { name: 'ownershipPercentage', type: 'uint256' }, { name: 'nftTokenId', type: 'uint256' }] },
-  { type: 'function', name: 'getUserContributions', stateMutability: 'view', inputs: [{ name: 'contributor', type: 'address' }], outputs: [{ type: 'uint256[]' }] },
-  { type: 'function', name: 'getProjectFunding', stateMutability: 'view', inputs: [{ name: 'projectId', type: 'uint256' }], outputs: [{ name: 'totalFunded', type: 'uint256' }, { name: 'contributorsCount', type: 'uint256' }] },
-  { type: 'function', name: 'mintProofOfImpactNFT', stateMutability: 'nonpayable', inputs: [{ name: 'contributor', type: 'address' }, { name: 'projectId', type: 'uint256' }], outputs: [{ name: 'tokenId', type: 'uint256' }] },
-  { type: 'function', name: 'calculateOwnershipPercentage', stateMutability: 'view', inputs: [{ name: 'contribution', type: 'uint256' }, { name: 'projectId', type: 'uint256' }], outputs: [{ type: 'uint256' }] },
-  { type: 'function', name: 'distributeYield', stateMutability: 'nonpayable', inputs: [{ name: 'projectId', type: 'uint256' }], outputs: [] },
-  { type: 'event', name: 'ProjectFunded', inputs: [{ name: 'projectId', type: 'uint256', indexed: true }, { name: 'contributor', type: 'address', indexed: true }, { name: 'amount', type: 'uint256', indexed: false }, { name: 'ownershipPercentage', type: 'uint256', indexed: false }] },
-  { type: 'event', name: 'NFTMinted', inputs: [{ name: 'contributor', type: 'address', indexed: true }, { name: 'projectId', type: 'uint256', indexed: true }, { name: 'tokenId', type: 'uint256', indexed: false }] },
-  { type: 'event', name: 'YieldDistributed', inputs: [{ name: 'projectId', type: 'uint256', indexed: true }, { name: 'totalYield', type: 'uint256', indexed: false }] },
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "newScore",
+				"type": "uint256"
+			}
+		],
+		"name": "CreditScoreUpdated",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "interestRate",
+				"type": "uint256"
+			}
+		],
+		"name": "LoanRecorded",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "loanIndex",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "bool",
+				"name": "onTime",
+				"type": "bool"
+			}
+		],
+		"name": "RepaymentRecorded",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			}
+		],
+		"name": "calculateCreditScore",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "loanIndex",
+				"type": "uint256"
+			}
+		],
+		"name": "getLoan",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "timestamp",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "interestRate",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "repaid",
+				"type": "bool"
+			},
+			{
+				"internalType": "bool",
+				"name": "onTime",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			}
+		],
+		"name": "getLoanCount",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			}
+		],
+		"name": "getLoanHistory",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "interestRate",
+						"type": "uint256"
+					},
+					{
+						"internalType": "bool",
+						"name": "repaid",
+						"type": "bool"
+					},
+					{
+						"internalType": "bool",
+						"name": "onTime",
+						"type": "bool"
+					}
+				],
+				"internalType": "struct CreditProfile.Loan[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			}
+		],
+		"name": "getMaxBorrowLimit",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			}
+		],
+		"name": "getProfile",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "creditScore",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "totalLoans",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "repaidLoans",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "latePayments",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "totalBorrowed",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "totalRepaid",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			}
+		],
+		"name": "getScore",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			}
+		],
+		"name": "initializeProfile",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "loanHistory",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "timestamp",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "interestRate",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "repaid",
+				"type": "bool"
+			},
+			{
+				"internalType": "bool",
+				"name": "onTime",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "profiles",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "creditScore",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "totalLoans",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "repaidLoans",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "latePayments",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "totalBorrowed",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "totalRepaid",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "interestRate",
+				"type": "uint256"
+			}
+		],
+		"name": "recordLoan",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "loanIndex",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "onTime",
+				"type": "bool"
+			}
+		],
+		"name": "recordRepayment",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
 ];
 
 // Hook to use write contract
@@ -62,9 +896,10 @@ export const useContract = () => {
     writeContractAsync,
     LENDING_POOL_ADDRESS,
     CREDIT_PROFILE_ADDRESS,
-    DEPIN_FINANCE_ADDRESS,
     LENDING_POOL_ABI,
     CREDIT_PROFILE_ABI,
-    DEPIN_FINANCE_ABI,
+    DEPIN_FINANCE_ADDRESS,
+    DEPIN_FINANCE_ABI
+
   };
 };

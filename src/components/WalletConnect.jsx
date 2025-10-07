@@ -1,21 +1,48 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Wallet, CheckCircle } from 'lucide-react';
+import { ethers } from 'ethers';
 
-const WalletConnect = () => {
+const WalletConnect = ({ onConnect }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [address, setAddress] = useState('');
 
-  const handleConnect = () => {
-    // Simulate wallet connection
-    const mockAddress = '0x742d35Cc6635C0532925a3b8D6Ac6a00000000';
-    setAddress(mockAddress);
-    setIsConnected(true);
+  const handleConnect = async () => {
+    try {
+      if (!window.ethereum) {
+        alert('Please install MetaMask!');
+        return;
+      }
+
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const accounts = await provider.send('eth_requestAccounts', []);
+      const userAddress = accounts[0];
+      
+      setAddress(userAddress);
+      setIsConnected(true);
+      
+      if (onConnect) {
+        onConnect(userAddress);
+      }
+      
+      // Optional: Listen for account changes
+      window.ethereum.on('accountsChanged', (newAccounts) => {
+        if (newAccounts.length > 0) {
+          setAddress(newAccounts[0]);
+        } else {
+          handleDisconnect();
+        }
+      });
+    } catch (error) {
+      console.error('Wallet connection failed:', error);
+      alert('Connection failed: ' + error.message);
+    }
   };
 
   const handleDisconnect = () => {
     setAddress('');
     setIsConnected(false);
+    // Optional: Remove listeners if needed
   };
 
   if (isConnected) {

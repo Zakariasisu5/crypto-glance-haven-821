@@ -12,6 +12,7 @@ import { routes } from "./nav-items";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 import Landing from "./pages/Landing";
+import DePINFundingComponent from "./components/DePINFundingComponent"; // Add this import for the new component
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,7 @@ const App = () => {
                               {routes.map(({ to, page: Page }) => (
                                 <Route key={to} path={to} element={<Page />} />
                               ))}
+                              <Route path="depin" element={<DePINFundingComponent />} /> {/* Add this new route for DePINFunding */}
                             </Routes>
                           </main>
                         </div>
