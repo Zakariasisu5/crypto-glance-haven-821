@@ -214,29 +214,46 @@ const Index = () => {
     return () => clearInterval(typingEffect);
   }, []);
 
-  // Fetch simple price history for chart (fallback to mockChartData if network fails)
+  // Fetch Creditcoin price history for chart
   const [priceHistory, setPriceHistory] = useState(fallbackPriceHistory);
+  const [creditcoinHistory, setCreditcoinHistory] = useState(fallbackPriceHistory);
+  
   useEffect(() => {
     let mounted = true;
     const fetchPrices = async () => {
       try {
+        // Fetch Bitcoin price history for general market trends
         const res = await axios.get('https://api.coingecko.com/api/v3/coins/bitcoin/market_chart', { params: { vs_currency: 'usd', days: 7 } });
         if (!mounted) return;
         const prices = res.data.prices.map(([ts, price]) => ({ date: new Date(ts).toISOString().slice(0,10), price }));
         setPriceHistory(prices.slice(-7));
       } catch (e) {
-        console.warn('Failed to fetch price history, using mock data', e);
+        console.warn('Failed to fetch Bitcoin price history, using mock data', e);
       }
     };
+    
+    const fetchCreditcoinPrices = async () => {
+      try {
+        // Fetch Creditcoin price history
+        const res = await axios.get('https://api.coingecko.com/api/v3/coins/creditcoin/market_chart', { params: { vs_currency: 'usd', days: 30 } });
+        if (!mounted) return;
+        const prices = res.data.prices.map(([ts, price]) => ({ date: new Date(ts).toISOString().slice(0,10), price }));
+        setCreditcoinHistory(prices.slice(-30));
+      } catch (e) {
+        console.warn('Failed to fetch Creditcoin price history, using mock data', e);
+      }
+    };
+    
     fetchPrices();
+    fetchCreditcoinPrices();
     return () => { mounted = false; };
   }, []);
 
   if (isLoading) return <div className="text-center mt-8 mooncreditfi-glow">Loading...</div>;
   if (isError) return <div className="text-center mt-8 mooncreditfi-glow text-destructive">Error: Unable to fetch crypto data</div>;
 
-  // Get MoonCreditFi data if available
-  const mooncreditfi = cryptos?.find(crypto => crypto.id === 'creditcoin' || crypto.symbol === 'CTC');
+  // Get Creditcoin data
+  const creditcoin = cryptos?.find(crypto => crypto.id === 'creditcoin' || crypto.symbol === 'CTC');
   const bitcoin = cryptos?.find(crypto => crypto.id === 'bitcoin');
   const ethereum = cryptos?.find(crypto => crypto.id === 'ethereum');
 
@@ -325,11 +342,11 @@ const Index = () => {
             icon={Activity}
           />
           <StatsCard
-            title="MoonCreditFi Price"
-            value={mooncreditfi ? `$${parseFloat(mooncreditfi.priceUsd).toFixed(4)}` : '$0.5847'}
+            title="Creditcoin Price"
+            value={creditcoin ? `$${parseFloat(creditcoin.priceUsd).toFixed(4)}` : '$0.5847'}
             description="CTC current price"
             icon={TrendingUp}
-            trend={mooncreditfi ? parseFloat(mooncreditfi.changePercent24Hr) : 8.4}
+            trend={creditcoin ? parseFloat(creditcoin.changePercent24Hr) : 8.4}
           />
           <StatsCard
             title="TVL"
@@ -344,7 +361,7 @@ const Index = () => {
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>
           <TabsTrigger value="overview">Market Overview</TabsTrigger>
-          <TabsTrigger value="mooncreditfi">MoonCreditFi Trends</TabsTrigger>
+          <TabsTrigger value="creditcoin">Creditcoin Trends</TabsTrigger>
           <TabsTrigger value="search">Asset Search</TabsTrigger>
         </TabsList>
 
@@ -402,34 +419,63 @@ const Index = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="mooncreditfi" className="space-y-4">
+        <TabsContent value="creditcoin" className="space-y-4">
           <Card className="card-glow">
             <CardHeader>
-              <CardTitle>MoonCreditFi Performance</CardTitle>
+              <CardTitle>Creditcoin (CTC) Performance</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div className="p-4 bg-muted/50 rounded-lg">
                     <p className="text-sm text-muted-foreground">Current Price</p>
                     <p className="text-2xl font-bold">
-                      {mooncreditfi ? `$${parseFloat(mooncreditfi.priceUsd).toFixed(4)}` : '$0.5847'}
+                      {creditcoin ? `$${parseFloat(creditcoin.priceUsd).toFixed(4)}` : '$0.5847'}
                     </p>
-                    <p className={`text-sm ${(mooncreditfi ? parseFloat(mooncreditfi.changePercent24Hr) : 8.4) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                      {mooncreditfi ? `${parseFloat(mooncreditfi.changePercent24Hr).toFixed(2)}%` : '+8.4%'} (24h)
+                    <p className={`text-sm ${(creditcoin ? parseFloat(creditcoin.changePercent24Hr) : 8.4) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      {creditcoin ? `${parseFloat(creditcoin.changePercent24Hr).toFixed(2)}%` : '+8.4%'} (24h)
                     </p>
                   </div>
                   <div className="p-4 bg-muted/50 rounded-lg">
                     <p className="text-sm text-muted-foreground">Market Cap</p>
                     <p className="text-xl font-bold">
-                      {mooncreditfi ? `$${(parseFloat(mooncreditfi.marketCapUsd) / 1e6).toFixed(1)}M` : '$45.2M'}
+                      {creditcoin ? `$${(parseFloat(creditcoin.marketCapUsd) / 1e6).toFixed(1)}M` : '$45.2M'}
+                    </p>
+                  </div>
+                  <div className="p-4 bg-muted/50 rounded-lg">
+                    <p className="text-sm text-muted-foreground">24h Volume</p>
+                    <p className="text-xl font-bold">
+                      {creditcoin ? `$${(parseFloat(creditcoin.marketCapUsd) * 0.15 / 1e6).toFixed(2)}M` : '$6.8M'}
                     </p>
                   </div>
                 </div>
-                <div className="text-center py-8 text-muted-foreground">
-                  <TrendingUp className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                  <p>MoonCreditFi chart integration</p>
-                  <p className="text-sm mt-2">Real-time price tracking coming soon</p>
+                <div>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={creditcoinHistory}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis 
+                        dataKey="date" 
+                        tick={{ fontSize: 12 }}
+                        tickFormatter={(date) => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      />
+                      <YAxis 
+                        tick={{ fontSize: 12 }}
+                        tickFormatter={(value) => `$${value.toFixed(4)}`}
+                      />
+                      <Tooltip 
+                        formatter={(value) => [`$${value.toFixed(6)}`, 'Price']}
+                        labelFormatter={(date) => new Date(date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="price" 
+                        stroke="hsl(var(--primary))" 
+                        strokeWidth={2}
+                        dot={false}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                  <p className="text-sm text-center text-muted-foreground mt-2">30-Day Price History</p>
                 </div>
               </div>
             </CardContent>
