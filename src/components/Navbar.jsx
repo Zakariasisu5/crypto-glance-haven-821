@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import WalletConnectButton from './WalletConnectButton';
+import NotificationButton from './NotificationButton';
 
 const Navbar = ({ onToggleSidebar }) => {
   return (
@@ -29,6 +30,7 @@ const Navbar = ({ onToggleSidebar }) => {
         </div>
 
         <div className="flex items-center gap-2">
+          <NotificationButton />
           <WalletConnectButton />
         </div>
       </div>

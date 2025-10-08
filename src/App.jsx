@@ -8,6 +8,7 @@ import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
 import { config } from './config/wagmi';
 import { WalletProvider } from "./contexts/WalletContext";
+import { NotificationProvider } from "./contexts/NotificationContext";
 import { routes } from "./nav-items";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
@@ -22,8 +23,9 @@ const App = () => {
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider>
-          <WalletProvider>
-            <TooltipProvider>
+          <NotificationProvider>
+            <WalletProvider>
+              <TooltipProvider>
               <Toaster />
               <HashRouter>
                 <Routes>
@@ -57,8 +59,9 @@ const App = () => {
                   />
                 </Routes>
               </HashRouter>
-            </TooltipProvider>
-          </WalletProvider>
+              </TooltipProvider>
+            </WalletProvider>
+          </NotificationProvider>
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>

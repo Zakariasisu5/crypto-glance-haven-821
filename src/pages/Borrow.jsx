@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { useWalletContext } from '@/contexts/WalletContext';
 import { useContract } from '@/hooks/useContract';
 import { toast } from 'sonner';
+import { useNotifications } from '@/contexts/NotificationContext';
 import { DollarSign, CreditCard, TrendingUp, Clock, CheckCircle, XCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useBlockNumber } from 'wagmi';
@@ -16,6 +17,7 @@ import { parseEther, formatEther } from 'viem';
 const Borrow = () => {
   const { account, isConnected } = useWalletContext();
   const { lendingPool, creditProfile } = useContract();
+  const { addNotification } = useNotifications();
   const [borrowAmount, setBorrowAmount] = useState('');
   const [activeLoan, setActiveLoan] = useState(null);
   const [creditScore, setCreditScore] = useState(0);
@@ -99,6 +101,7 @@ const Borrow = () => {
       toast.success('Transaction submitted! Waiting for confirmation...');
 
       toast.success(`Successfully borrowed ${borrowAmount} CTC`);
+      addNotification(`Borrowed ${borrowAmount} CTC at 5.0% APR`, 'success');
       setBorrowAmount('');
 
       // Reload data after a short delay
@@ -147,6 +150,7 @@ const Borrow = () => {
       toast.success('Transaction submitted! Waiting for confirmation...');
 
       toast.success('Successfully repaid loan! Your credit score has been updated.');
+      addNotification(`Repaid loan of ${activeLoan.totalOwed} CTC - Credit score updated`, 'success');
 
       // Reload data after a short delay
       setTimeout(() => loadBorrowerData(), 2000);

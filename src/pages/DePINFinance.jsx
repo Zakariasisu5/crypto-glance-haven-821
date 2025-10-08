@@ -10,6 +10,7 @@ import StatsCard from '@/components/StatsCard';
 import { supabase } from '@/integrations/supabase/client';
 import { useWalletContext } from '@/contexts/WalletContext';
 import { toast } from 'sonner';
+import { useNotifications } from '@/contexts/NotificationContext';
 import { parseEther, formatEther } from 'viem';
 import { useWriteContract, useWaitForTransactionReceipt, useAccount } from 'wagmi';
 import { Zap, Sun, Wifi, Car, DollarSign, TrendingUp, Users, Loader2, Shield, Target, Award, ExternalLink } from 'lucide-react';
@@ -24,6 +25,7 @@ const DePINFinance = () => {
   const [contributions, setContributions] = useState([]);
   const { isConnected } = useWalletContext();
   const { address } = useAccount();
+  const { addNotification } = useNotifications();
   const { writeContract, data: txHash } = useWriteContract();
   const { isLoading: isTxPending, isSuccess: isTxSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
@@ -158,6 +160,11 @@ const DePINFinance = () => {
           <p className="text-xs">NFT ID: {contributionData.nft_token_id}</p>
         </div>,
         { duration: 5000 }
+      );
+      
+      addNotification(
+        `Funded ${project.name} with ${amount} CTC - NFT minted: ${contributionData.nft_token_id}`,
+        'success'
       );
       
       fetchProjects();

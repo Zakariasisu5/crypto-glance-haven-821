@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { useWalletContext } from '@/contexts/WalletContext';
 import { useContract, LENDING_POOL_ADDRESS, LENDING_POOL_ABI } from '@/hooks/useContract';
 import { toast } from 'sonner';
+import { useNotifications } from '@/contexts/NotificationContext';
 import { DollarSign, TrendingUp, Wallet } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { parseEther, formatEther } from 'viem';
@@ -14,6 +15,7 @@ import { useReadContract, useBlockNumber } from 'wagmi';
 const Lend = () => {
   const { account, isConnected } = useWalletContext();
   const { writeContractAsync } = useContract();
+  const { addNotification } = useNotifications();
   const [depositAmount, setDepositAmount] = useState('');
   const [depositedBalance, setDepositedBalance] = useState('0');
   const [yieldEarned, setYieldEarned] = useState('0');
@@ -99,6 +101,7 @@ const Lend = () => {
 
       toast.success('Transaction submitted! Waiting for confirmation...');
       toast.success(`Successfully deposited ${depositAmount} CTC`);
+      addNotification(`Successfully deposited ${depositAmount} CTC`, 'success');
       setDepositAmount('');
 
       // Reload data
@@ -144,6 +147,7 @@ const Lend = () => {
 
       toast.success('Transaction submitted! Waiting for confirmation...');
       toast.success('Successfully withdrew funds');
+      addNotification(`Successfully withdrew ${depositedBalance} CTC`, 'success');
 
       // Reload data
       setTimeout(() => {
