@@ -3,7 +3,6 @@ MooncreditFi is a Creditcoin-inspired DeFi + DePIN platform that merges blockcha
 
 The platform bridges real crypto market data, Creditcoin metrics, and on-chain lending features to promote financial inclusion and real-world impact.
 
-
 ### Features
 
 🔹 Smart Contracts
