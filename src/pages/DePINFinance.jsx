@@ -13,7 +13,9 @@ import { toast } from 'sonner';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { parseEther, formatEther } from 'viem';
 import { useWriteContract, useWaitForTransactionReceipt, useAccount } from 'wagmi';
-import { Zap, Sun, Wifi, Car, DollarSign, TrendingUp, Users, Loader2, Shield, Target, Award, ExternalLink } from 'lucide-react';
+import { Zap, Sun, Wifi, Car, DollarSign, TrendingUp, Users, Loader2, Shield, Target, Award, ExternalLink, Search, Filter, X } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Slider } from '@/components/ui/slider';
 import { DEPIN_FINANCE_ADDRESS, DEPIN_FINANCE_ABI } from '@/hooks/useContract';
 
 const DePINFinance = () => {
@@ -23,6 +25,10 @@ const DePINFinance = () => {
   const [fundingAmount, setFundingAmount] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [contributions, setContributions] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [minROI, setMinROI] = useState(0);
+  const [minProgress, setMinProgress] = useState(0);
   const { isConnected } = useWalletContext();
   const { address } = useAccount();
   const { addNotification } = useNotifications();
@@ -352,6 +358,29 @@ const DePINFinance = () => {
     value: parseFloat(p.funding_current || 0)
   }));
 
+  // Get unique categories
+  const categories = [...new Set(projects.map(p => p.category))];
+
+  // Filter projects
+  const filteredProjects = projects.filter(project => {
+    const matchesSearch = project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          project.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = categoryFilter === 'all' || project.category === categoryFilter;
+    const matchesROI = project.roi >= minROI;
+    const matchesProgress = project.funding_progress >= minProgress;
+    
+    return matchesSearch && matchesCategory && matchesROI && matchesProgress;
+  });
+
+  const clearFilters = () => {
+    setSearchQuery('');
+    setCategoryFilter('all');
+    setMinROI(0);
+    setMinProgress(0);
+  };
+
+  const hasActiveFilters = searchQuery || categoryFilter !== 'all' || minROI > 0 || minProgress > 0;
+
   const totalContributed = contributions.reduce((sum, c) => sum + parseFloat(c.amount || 0), 0);
   const totalOwnership = contributions.reduce((sum, c) => sum + parseFloat(c.ownership_percentage || 0), 0);
 
@@ -543,9 +572,99 @@ const DePINFinance = () => {
 
           {/* Available Projects */}
           <div>
-            <h2 className="text-2xl font-bold mb-4">Available Projects</h2>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+              <h2 className="text-2xl font-bold">Available Projects</h2>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  {filteredProjects.length} of {projects.length} projects
+                </span>
+                {hasActiveFilters && (
+                  <Button variant="ghost" size="sm" onClick={clearFilters} className="text-muted-foreground hover:text-foreground">
+                    <X className="h-4 w-4 mr-1" />
+                    Clear
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Search and Filters */}
+            <Card className="mb-6">
+              <CardContent className="pt-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {/* Search */}
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search projects..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-9"
+                    />
+                  </div>
+
+                  {/* Category Filter */}
+                  <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                    <SelectTrigger>
+                      <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
+                      <SelectValue placeholder="All Categories" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Categories</SelectItem>
+                      {categories.map(category => (
+                        <SelectItem key={category} value={category}>{category}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {/* ROI Filter */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Min ROI</span>
+                      <span className="font-medium">{minROI}%+</span>
+                    </div>
+                    <Slider
+                      value={[minROI]}
+                      onValueChange={(value) => setMinROI(value[0])}
+                      max={20}
+                      step={1}
+                      className="w-full"
+                    />
+                  </div>
+
+                  {/* Progress Filter */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Min Progress</span>
+                      <span className="font-medium">{minProgress}%+</span>
+                    </div>
+                    <Slider
+                      value={[minProgress]}
+                      onValueChange={(value) => setMinProgress(value[0])}
+                      max={100}
+                      step={5}
+                      className="w-full"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {filteredProjects.length === 0 ? (
+              <Card className="card-glow">
+                <CardContent className="flex flex-col items-center justify-center py-12">
+                  <Search className="h-12 w-12 text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No projects found</h3>
+                  <p className="text-muted-foreground text-center mb-4">
+                    Try adjusting your filters or search terms
+                  </p>
+                  <Button variant="outline" onClick={clearFilters}>
+                    Clear all filters
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {projects.map((project) => {
+              {filteredProjects.map((project) => {
                 const Icon = categoryIcons[project.category] || Zap;
                 const iconColors = {
                   'Solar': 'text-yellow-500',
@@ -662,6 +781,7 @@ const DePINFinance = () => {
                 );
               })}
             </div>
+            )}
           </div>
         </>
       )}
