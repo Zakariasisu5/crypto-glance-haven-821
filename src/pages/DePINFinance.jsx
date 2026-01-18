@@ -37,6 +37,9 @@ const DePINFinance = () => {
     'Solar': Sun,
     'WiFi': Wifi,
     'Mobility': Car,
+    'IoT': Zap,
+    'Energy Storage': Zap,
+    'Telecom': Wifi,
     'Other': Zap
   };
 
@@ -104,12 +107,84 @@ const DePINFinance = () => {
     {
       id: '4',
       name: 'Smart Energy Storage',
-      category: 'Other',
-      description: 'Distributed battery storage network for renewable energy optimization.',
+      category: 'Energy Storage',
+      description: 'Distributed battery storage network for renewable energy optimization and grid stability.',
       funding_goal: 3500000,
       funding_current: 2100000,
       funding_progress: 60,
       roi: 10.8,
+      status: 'active',
+      image: '/placeholder.svg'
+    },
+    {
+      id: '5',
+      name: 'IoT Sensor Network',
+      category: 'IoT',
+      description: 'Decentralized environmental monitoring sensors for air quality, weather, and pollution tracking.',
+      funding_goal: 1500000,
+      funding_current: 975000,
+      funding_progress: 65,
+      roi: 9.5,
+      status: 'active',
+      image: '/placeholder.svg'
+    },
+    {
+      id: '6',
+      name: 'Smart Agriculture Sensors',
+      category: 'IoT',
+      description: 'IoT-enabled soil and crop monitoring system for precision farming with data marketplace.',
+      funding_goal: 2200000,
+      funding_current: 1540000,
+      funding_progress: 70,
+      roi: 11.2,
+      status: 'active',
+      image: '/placeholder.svg'
+    },
+    {
+      id: '7',
+      name: '5G Telecom Towers',
+      category: 'Telecom',
+      description: 'Community-owned 5G infrastructure with revenue sharing from network usage fees.',
+      funding_goal: 12000000,
+      funding_current: 7200000,
+      funding_progress: 60,
+      roi: 18.5,
+      status: 'active',
+      image: '/placeholder.svg'
+    },
+    {
+      id: '8',
+      name: 'Rural Connectivity Hub',
+      category: 'Telecom',
+      description: 'Satellite-linked communication hubs bringing internet to remote villages.',
+      funding_goal: 4000000,
+      funding_current: 2800000,
+      funding_progress: 70,
+      roi: 13.0,
+      status: 'active',
+      image: '/placeholder.svg'
+    },
+    {
+      id: '9',
+      name: 'Grid Battery Network',
+      category: 'Energy Storage',
+      description: 'Large-scale lithium-ion battery facilities for peak demand management and energy arbitrage.',
+      funding_goal: 15000000,
+      funding_current: 10500000,
+      funding_progress: 70,
+      roi: 16.5,
+      status: 'active',
+      image: '/placeholder.svg'
+    },
+    {
+      id: '10',
+      name: 'Smart City Sensors',
+      category: 'IoT',
+      description: 'Traffic, parking, and utility monitoring sensors for urban efficiency optimization.',
+      funding_goal: 3000000,
+      funding_current: 1800000,
+      funding_progress: 60,
+      roi: 10.0,
       status: 'active',
       image: '/placeholder.svg'
     }
@@ -476,6 +551,9 @@ const DePINFinance = () => {
                   'Solar': 'text-yellow-500',
                   'WiFi': 'text-blue-500',
                   'Mobility': 'text-purple-500',
+                  'IoT': 'text-green-500',
+                  'Energy Storage': 'text-orange-500',
+                  'Telecom': 'text-cyan-500',
                   'Other': 'text-primary'
                 };
                 
