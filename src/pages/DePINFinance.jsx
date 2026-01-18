@@ -197,6 +197,11 @@ const DePINFinance = () => {
   ];
 
   useEffect(() => {
+    // Load mock data immediately for instant display
+    setProjects(mockProjects);
+    setLoading(false);
+    
+    // Then try to fetch from database in background
     fetchProjects();
     if (address) {
       fetchUserContributions();
@@ -211,20 +216,26 @@ const DePINFinance = () => {
 
   const fetchProjects = async () => {
     try {
+      // Use AbortController for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+      
       const { data, error } = await supabase
         .from('depin_projects')
         .select('*')
         .eq('status', 'active')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .abortSignal(controller.signal);
+      
+      clearTimeout(timeoutId);
       
       if (error) throw error;
-      setProjects(data && data.length > 0 ? data : mockProjects);
+      if (data && data.length > 0) {
+        setProjects(data);
+      }
     } catch (error) {
-      console.error('Error fetching projects:', error);
-      // Use mock data as fallback
-      setProjects(mockProjects);
-    } finally {
-      setLoading(false);
+      // Silently fail - mock data already loaded
+      console.log('Using mock data for DePIN projects');
     }
   };
 
