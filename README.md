@@ -38,8 +38,6 @@ Distribute real yield (profit-sharing, not interest).
 Mint proof-of-impact NFTs for contributors.
 
 
----
-
 🔹 Backend (Node.js + Supabase)
 
 Fetch live crypto market data from CoinGecko API.
