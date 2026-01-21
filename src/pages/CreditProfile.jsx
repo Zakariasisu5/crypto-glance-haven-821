@@ -12,7 +12,7 @@ import { useBlockNumber, useReadContract } from 'wagmi';
 
 const CreditProfile = () => {
   const { account, isConnected } = useWalletContext();
-  const [creditProfile, setCreditProfile] = useState({ creditScore: 0, borrowingHistory: [], totalBorrowed: 0, totalRepaid: 0 });
+  const [creditProfile, setCreditProfile] = useState({ creditScore: 0, borrowingHistory: [], totalBorrowed: 0, totalRepaid: 0, availableCredit: 0, utilizedCredit: 0 });
   const creditScoreHistory = [];
 
   // Read profile data
