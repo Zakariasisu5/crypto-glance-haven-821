@@ -4,76 +4,119 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useWalletContext } from '@/contexts/WalletContext';
-import { useContract } from '@/hooks/useContract';
+import { useContract, LENDING_POOL_ADDRESS, LENDING_POOL_ABI, CREDIT_PROFILE_ADDRESS, CREDIT_PROFILE_ABI } from '@/hooks/useContract';
 import { toast } from 'sonner';
 import { useNotifications } from '@/contexts/NotificationContext';
-import { DollarSign, CreditCard, TrendingUp, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { DollarSign, CreditCard, TrendingUp, Clock, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useBlockNumber } from 'wagmi';
+import { useReadContract, useBlockNumber } from 'wagmi';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { parseEther, formatEther } from 'viem';
 
 const Borrow = () => {
   const { account, isConnected } = useWalletContext();
-  const { lendingPool, creditProfile } = useContract();
+  const { writeContractAsync } = useContract();
   const { addNotification } = useNotifications();
   const [borrowAmount, setBorrowAmount] = useState('');
   const [activeLoan, setActiveLoan] = useState(null);
   const [creditScore, setCreditScore] = useState(0);
+  const [maxBorrowLimit, setMaxBorrowLimit] = useState('0');
   const [loanHistory, setLoanHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (account && lendingPool && creditProfile) {
-      loadBorrowerData();
-    }
-  }, [account, lendingPool, creditProfile]);
+  // Read credit score from CreditProfile
+  const { data: scoreData, refetch: refetchScore } = useReadContract({
+    address: CREDIT_PROFILE_ADDRESS,
+    abi: CREDIT_PROFILE_ABI,
+    functionName: 'getScore',
+    args: account ? [account] : undefined,
+    query: { enabled: !!account },
+  });
 
-  // Refresh on new block
+  // Read max borrow limit
+  const { data: borrowLimitData, refetch: refetchBorrowLimit } = useReadContract({
+    address: CREDIT_PROFILE_ADDRESS,
+    abi: CREDIT_PROFILE_ABI,
+    functionName: 'getMaxBorrowLimit',
+    args: account ? [account] : undefined,
+    query: { enabled: !!account },
+  });
+
+  // Read borrower loan from LendingPool
+  const { data: borrowerLoan, refetch: refetchBorrowerLoan } = useReadContract({
+    address: LENDING_POOL_ADDRESS,
+    abi: LENDING_POOL_ABI,
+    functionName: 'getBorrowerLoan',
+    args: account ? [account] : undefined,
+    query: { enabled: !!account },
+  });
+
+  // Read loan history from CreditProfile
+  const { data: loanHistoryData, refetch: refetchLoanHistory } = useReadContract({
+    address: CREDIT_PROFILE_ADDRESS,
+    abi: CREDIT_PROFILE_ABI,
+    functionName: 'getLoanHistory',
+    args: account ? [account] : undefined,
+    query: { enabled: !!account },
+  });
+
+  // Refresh on new blocks
   const { data: blockNumber } = useBlockNumber({ watch: true });
+
   useEffect(() => {
-    if (blockNumber && account) loadBorrowerData();
+    if (blockNumber) {
+      refetchScore?.();
+      refetchBorrowLimit?.();
+      refetchBorrowerLoan?.();
+      refetchLoanHistory?.();
+    }
   }, [blockNumber]);
 
-  const loadBorrowerData = async () => {
-    try {
-      if (!lendingPool || !creditProfile || !account) return;
+  // Update credit score
+  useEffect(() => {
+    if (scoreData !== undefined) {
+      setCreditScore(Number(scoreData));
+    }
+  }, [scoreData]);
 
-      // Get credit score
-      const score = await creditProfile.read.getScore([account]);
-      setCreditScore(Number(score));
+  // Update max borrow limit
+  useEffect(() => {
+    if (borrowLimitData !== undefined) {
+      setMaxBorrowLimit(formatEther(borrowLimitData));
+    }
+  }, [borrowLimitData]);
 
-      // Get active loan
-      const loan = await lendingPool.read.getBorrowerLoan([account]);
-      if (loan[2]) { // isActive
+  // Update active loan
+  useEffect(() => {
+    if (borrowerLoan) {
+      const [amount, interestRate, isActive, totalOwed] = borrowerLoan;
+      if (isActive) {
         setActiveLoan({
-          amount: formatEther(loan[0]),
-          totalOwed: formatEther(loan[3]),
-          interestRate: (Number(loan[1]) / 100).toFixed(1),
+          amount: formatEther(amount),
+          totalOwed: formatEther(totalOwed),
+          interestRate: (Number(interestRate) / 100).toFixed(1),
           dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString(),
         });
       } else {
         setActiveLoan(null);
       }
+    }
+  }, [borrowerLoan]);
 
-      // Get loan history
-      const history = await creditProfile.read.getLoanHistory([account]);
-      const formattedHistory = history.map((loan, index) => ({
+  // Update loan history
+  useEffect(() => {
+    if (loanHistoryData && Array.isArray(loanHistoryData)) {
+      const formattedHistory = loanHistoryData.map((loan, index) => ({
         id: index,
-        amount: formatEther(loan[0]),
-        date: new Date(Number(loan[1]) * 1000).toLocaleDateString(),
-        status: loan[3] ? 'Repaid' : 'Active',
-        onTime: loan[4],
+        amount: formatEther(loan.amount),
+        date: new Date(Number(loan.timestamp) * 1000).toLocaleDateString(),
+        status: loan.repaid ? 'Repaid' : 'Active',
+        onTime: loan.onTime,
       }));
       setLoanHistory(formattedHistory);
-    } catch (error) {
-      console.error('Error loading borrower data:', error);
-      setCreditScore(0);
-      setActiveLoan(null);
-      setLoanHistory([]);
     }
-  };
+  }, [loanHistoryData]);
 
   const handleBorrow = async () => {
     if (!isConnected) {
@@ -86,8 +129,13 @@ const Borrow = () => {
       return;
     }
 
-    if (!lendingPool) {
-      toast.error('Contract not loaded');
+    if (parseFloat(borrowAmount) > parseFloat(maxBorrowLimit)) {
+      toast.error(`Amount exceeds your borrowing limit of ${parseFloat(maxBorrowLimit).toFixed(4)} CTC`);
+      return;
+    }
+
+    if (creditScore < 500) {
+      toast.error('Your credit score is too low to borrow. Minimum required: 500');
       return;
     }
 
@@ -95,27 +143,43 @@ const Borrow = () => {
     try {
       const amountInWei = parseEther(borrowAmount);
 
-      // Call real contract borrow function
-      const hash = await lendingPool.write.borrow([amountInWei]);
+      toast.info('Please confirm the transaction in your wallet...');
 
-      toast.success('Transaction submitted! Waiting for confirmation...');
+      const hash = await writeContractAsync({
+        address: LENDING_POOL_ADDRESS,
+        abi: LENDING_POOL_ABI,
+        functionName: 'borrow',
+        args: [amountInWei],
+      });
 
+      toast.success(`Transaction submitted! Hash: ${hash.slice(0, 10)}...`);
       toast.success(`Successfully borrowed ${borrowAmount} CTC`);
-      addNotification(`Borrowed ${borrowAmount} CTC at 5.0% APR`, 'success');
+      addNotification(`Borrowed ${borrowAmount} CTC`, 'success');
       setBorrowAmount('');
 
-      // Reload data after a short delay
-      setTimeout(() => loadBorrowerData(), 2000);
+      // Refresh data after delay
+      setTimeout(() => {
+        refetchScore?.();
+        refetchBorrowLimit?.();
+        refetchBorrowerLoan?.();
+        refetchLoanHistory?.();
+      }, 3000);
     } catch (error) {
       console.error('Borrow error:', error);
-      if (error.message.includes('User rejected')) {
-        toast.error('Transaction rejected');
-      } else if (error.message.includes('Credit score too low')) {
+      if (error.message?.includes('User rejected') || error.message?.includes('rejected')) {
+        toast.error('Transaction rejected by user');
+      } else if (error.message?.includes('Credit score too low')) {
         toast.error('Credit score too low to borrow');
-      } else if (error.message.includes('Exceeds borrowing limit')) {
+      } else if (error.message?.includes('Exceeds borrowing limit')) {
         toast.error('Amount exceeds your borrowing limit');
+      } else if (error.message?.includes('CreditProfile not set')) {
+        toast.error('Lending pool not properly configured');
+      } else if (error.message?.includes('Insufficient pool liquidity')) {
+        toast.error('Insufficient liquidity in the pool');
+      } else if (error.message?.includes('Active loan exists')) {
+        toast.error('You already have an active loan. Please repay first.');
       } else {
-        toast.error('Failed to borrow: ' + (error.shortMessage || error.message));
+        toast.error('Failed to borrow: ' + (error.shortMessage || error.message || 'Unknown error'));
       }
     } finally {
       setIsLoading(false);
@@ -133,33 +197,40 @@ const Borrow = () => {
       return;
     }
 
-    if (!lendingPool) {
-      toast.error('Contract not loaded');
-      return;
-    }
-
     setIsLoading(true);
     try {
       const amountToRepay = parseEther(activeLoan.totalOwed);
 
-      // Call real contract repay function
-      const hash = await lendingPool.write.repay([], {
-        value: amountToRepay
+      toast.info('Please confirm the transaction in your wallet...');
+
+      const hash = await writeContractAsync({
+        address: LENDING_POOL_ADDRESS,
+        abi: LENDING_POOL_ABI,
+        functionName: 'repay',
+        value: amountToRepay,
       });
 
-      toast.success('Transaction submitted! Waiting for confirmation...');
-
+      toast.success(`Transaction submitted! Hash: ${hash.slice(0, 10)}...`);
       toast.success('Successfully repaid loan! Your credit score has been updated.');
       addNotification(`Repaid loan of ${activeLoan.totalOwed} CTC - Credit score updated`, 'success');
 
-      // Reload data after a short delay
-      setTimeout(() => loadBorrowerData(), 2000);
+      // Refresh data after delay
+      setTimeout(() => {
+        refetchScore?.();
+        refetchBorrowLimit?.();
+        refetchBorrowerLoan?.();
+        refetchLoanHistory?.();
+      }, 3000);
     } catch (error) {
       console.error('Repay error:', error);
-      if (error.message.includes('User rejected')) {
-        toast.error('Transaction rejected');
+      if (error.message?.includes('User rejected') || error.message?.includes('rejected')) {
+        toast.error('Transaction rejected by user');
+      } else if (error.message?.includes('insufficient funds')) {
+        toast.error('Insufficient funds to repay the loan');
+      } else if (error.message?.includes('Insufficient repayment amount')) {
+        toast.error('Repayment amount is insufficient');
       } else {
-        toast.error('Failed to repay: ' + (error.shortMessage || error.message));
+        toast.error('Failed to repay: ' + (error.shortMessage || error.message || 'Unknown error'));
       }
     } finally {
       setIsLoading(false);
@@ -170,19 +241,24 @@ const Borrow = () => {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
+      transition: { staggerChildren: 0.1 }
     }
   };
 
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1
-    }
+    visible: { y: 0, opacity: 1 }
   };
+
+  const getCreditScoreBadge = () => {
+    if (creditScore >= 750) return { label: 'Excellent', variant: 'default' };
+    if (creditScore >= 700) return { label: 'Good', variant: 'default' };
+    if (creditScore >= 600) return { label: 'Fair', variant: 'secondary' };
+    if (creditScore >= 500) return { label: 'Poor', variant: 'destructive' };
+    return { label: 'No Score', variant: 'outline' };
+  };
+
+  const badge = getCreditScoreBadge();
 
   return (
     <motion.div
@@ -218,16 +294,21 @@ const Borrow = () => {
                   onChange={(e) => setBorrowAmount(e.target.value)}
                   min="0"
                   step="0.01"
+                  disabled={isLoading}
                 />
               </div>
               <div className="p-3 bg-muted rounded-lg space-y-1">
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Interest Rate</span>
-                  <span className="font-medium">5.0% APR</span>
+                  <span className="text-muted-foreground">Your Credit Score</span>
+                  <span className="font-medium">{creditScore || 'N/A'}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Max Borrowable</span>
-                  <span className="font-medium">3.5 CTC</span>
+                  <span className="font-medium">{parseFloat(maxBorrowLimit).toFixed(4)} CTC</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Interest Rate</span>
+                  <span className="font-medium">5-12% APR</span>
                 </div>
               </div>
               <Button
@@ -235,8 +316,22 @@ const Borrow = () => {
                 disabled={isLoading || !isConnected || !!activeLoan}
                 className="w-full btn-mooncreditfi"
               >
-                {isLoading ? 'Processing...' : activeLoan ? 'Repay Current Loan First' : 'Borrow'}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Processing...
+                  </>
+                ) : activeLoan ? (
+                  'Repay Current Loan First'
+                ) : (
+                  'Borrow'
+                )}
               </Button>
+              {!isConnected && (
+                <p className="text-sm text-muted-foreground text-center">
+                  Connect your wallet to borrow
+                </p>
+              )}
             </CardContent>
           </Card>
         </motion.div>
@@ -257,7 +352,7 @@ const Borrow = () => {
                   <div className="space-y-3">
                     <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
                       <span className="text-sm text-muted-foreground">Borrowed</span>
-                      <span className="font-bold text-lg">{activeLoan.amount} CTC</span>
+                      <span className="font-bold text-lg">{parseFloat(activeLoan.amount).toFixed(4)} CTC</span>
                     </div>
                     <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
                       <span className="text-sm text-muted-foreground">Interest Rate</span>
@@ -266,7 +361,7 @@ const Borrow = () => {
                     <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
                       <span className="text-sm text-muted-foreground">Total to Repay</span>
                       <span className="font-bold text-lg text-orange-500">
-                        {parseFloat(activeLoan.totalOwed).toFixed(4)} CTC
+                        {parseFloat(activeLoan.totalOwed).toFixed(6)} CTC
                       </span>
                     </div>
                     <div className="flex justify-between items-center p-3 bg-primary/10 rounded-lg border border-primary/20">
@@ -279,13 +374,23 @@ const Borrow = () => {
                     disabled={isLoading || !isConnected}
                     className="w-full btn-mooncreditfi"
                   >
-                    {isLoading ? 'Processing...' : 'Repay Loan'}
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      'Repay Loan'
+                    )}
                   </Button>
                 </>
               ) : (
                 <div className="text-center py-8">
                   <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-3" />
                   <p className="text-muted-foreground">No active loans</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Borrow CTC to build your credit score
+                  </p>
                 </div>
               )}
             </CardContent>
@@ -307,11 +412,11 @@ const Borrow = () => {
             <div className="flex items-center justify-between p-4 bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg border border-primary/20">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Credit Score</p>
-                <p className="text-4xl font-bold text-primary">{creditScore}</p>
+                <p className="text-4xl font-bold text-primary">{creditScore || 'N/A'}</p>
               </div>
               <div className="text-right">
-                <Badge variant={creditScore >= 700 ? "default" : "secondary"} className="mb-2">
-                  {creditScore >= 700 ? 'Excellent' : creditScore >= 600 ? 'Good' : 'Fair'}
+                <Badge variant={badge.variant} className="mb-2">
+                  {badge.label}
                 </Badge>
                 <p className="text-xs text-muted-foreground">Based on {loanHistory.length} loans</p>
               </div>
@@ -319,38 +424,51 @@ const Borrow = () => {
 
             <div>
               <h4 className="font-semibold mb-3">Loan History</h4>
-              <div className="border rounded-lg overflow-hidden">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Amount (CTC)</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">On Time</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {loanHistory.map((loan) => (
-                      <TableRow key={loan.id}>
-                        <TableCell className="font-medium">{loan.date}</TableCell>
-                        <TableCell>{loan.amount}</TableCell>
-                        <TableCell>
-                          <Badge variant={loan.status === 'Repaid' ? 'default' : 'secondary'}>
-                            {loan.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {loan.onTime ? (
-                            <CheckCircle className="h-4 w-4 text-green-500 ml-auto" />
-                          ) : (
-                            <XCircle className="h-4 w-4 text-red-500 ml-auto" />
-                          )}
-                        </TableCell>
+              {loanHistory.length > 0 ? (
+                <div className="border rounded-lg overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Amount (CTC)</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">On Time</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+                    </TableHeader>
+                    <TableBody>
+                      {loanHistory.map((loan) => (
+                        <TableRow key={loan.id}>
+                          <TableCell className="font-medium">{loan.date}</TableCell>
+                          <TableCell>{parseFloat(loan.amount).toFixed(4)}</TableCell>
+                          <TableCell>
+                            <Badge variant={loan.status === 'Repaid' ? 'default' : 'secondary'}>
+                              {loan.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {loan.status === 'Repaid' ? (
+                              loan.onTime ? (
+                                <CheckCircle className="h-4 w-4 text-green-500 ml-auto" />
+                              ) : (
+                                <XCircle className="h-4 w-4 text-red-500 ml-auto" />
+                              )
+                            ) : (
+                              <span className="text-muted-foreground">-</span>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              ) : (
+                <div className="text-center py-8 bg-muted/50 rounded-lg">
+                  <p className="text-muted-foreground">No loan history yet</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Take your first loan to start building credit
+                  </p>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

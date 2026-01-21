@@ -4,62 +4,75 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import StatsCard from '@/components/StatsCard';
-// Using on-chain data; mock data removed
 import { User, CreditCard, TrendingUp, DollarSign } from 'lucide-react';
 import { useWalletContext } from '@/contexts/WalletContext';
-import { useContract } from '@/hooks/useContract';
+import { CREDIT_PROFILE_ADDRESS, CREDIT_PROFILE_ABI } from '@/hooks/useContract';
 import { formatEther } from 'viem';
-import { useBlockNumber } from 'wagmi';
+import { useBlockNumber, useReadContract } from 'wagmi';
 
 const CreditProfile = () => {
   const { account, isConnected } = useWalletContext();
-  const { creditProfile: creditContract } = useContract();
-  const [creditProfile, setCreditProfile] = useState({ creditScore: 0, borrowingHistory: [], availableCredit: 0, utilizedCredit: 0 });
-  const [isLoading, setIsLoading] = useState(false);
+  const [creditProfile, setCreditProfile] = useState({ creditScore: 0, borrowingHistory: [], totalBorrowed: 0, totalRepaid: 0 });
   const creditScoreHistory = [];
 
-  useEffect(() => {
-    if (account && creditContract) {
-      loadCreditProfile();
-    }
-  }, [account, creditContract]);
+  // Read profile data
+  const { data: profileData, refetch: refetchProfile } = useReadContract({
+    address: CREDIT_PROFILE_ADDRESS,
+    abi: CREDIT_PROFILE_ABI,
+    functionName: 'getProfile',
+    args: account ? [account] : undefined,
+    query: { enabled: !!account },
+  });
 
-  // Refresh profile on each new block
+  // Read loan history
+  const { data: loanHistoryData, refetch: refetchHistory } = useReadContract({
+    address: CREDIT_PROFILE_ADDRESS,
+    abi: CREDIT_PROFILE_ABI,
+    functionName: 'getLoanHistory',
+    args: account ? [account] : undefined,
+    query: { enabled: !!account },
+  });
+
+  // Read max borrow limit
+  const { data: maxBorrowData } = useReadContract({
+    address: CREDIT_PROFILE_ADDRESS,
+    abi: CREDIT_PROFILE_ABI,
+    functionName: 'getMaxBorrowLimit',
+    args: account ? [account] : undefined,
+    query: { enabled: !!account },
+  });
+
+  // Refresh on new blocks
   const { data: blockNumber } = useBlockNumber({ watch: true });
   useEffect(() => {
-    if (blockNumber && account && creditContract) {
-      loadCreditProfile();
+    if (blockNumber) {
+      refetchProfile?.();
+      refetchHistory?.();
     }
   }, [blockNumber]);
 
-  const loadCreditProfile = async () => {
-    try {
-      setIsLoading(true);
-      if (!creditContract || !account) return;
-
-      // Get profile data
-      const profile = await creditContract.read.getProfile([account]);
-      const history = await creditContract.read.getLoanHistory([account]);
-
-      const formattedHistory = history.map((loan) => ({
-        date: new Date(Number(loan[1]) * 1000).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit' }),
-        amount: parseFloat(formatEther(loan[0])),
-        status: loan[3] ? 'repaid' : 'active',
-        rate: Number(loan[2]) / 100,
-      }));
+  // Update profile state when data changes
+  useEffect(() => {
+    if (profileData && loanHistoryData) {
+      const [creditScore, totalLoans, repaidLoans, latePayments, totalBorrowed, totalRepaid] = profileData;
+      
+      const formattedHistory = Array.isArray(loanHistoryData) ? loanHistoryData.map((loan) => ({
+        date: new Date(Number(loan.timestamp) * 1000).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit' }),
+        amount: parseFloat(formatEther(loan.amount)),
+        status: loan.repaid ? 'repaid' : 'active',
+        rate: Number(loan.interestRate) / 100,
+      })) : [];
 
       setCreditProfile({
-        creditScore: Number(profile[0]) || 500,
+        creditScore: Number(creditScore) || 0,
         borrowingHistory: formattedHistory,
-        availableCredit: parseFloat(formatEther(profile[5])),
-        utilizedCredit: parseFloat(formatEther(profile[4]) - formatEther(profile[5])),
+        totalBorrowed: parseFloat(formatEther(totalBorrowed)),
+        totalRepaid: parseFloat(formatEther(totalRepaid)),
+        availableCredit: maxBorrowData ? parseFloat(formatEther(maxBorrowData)) : 0,
+        utilizedCredit: parseFloat(formatEther(totalBorrowed)) - parseFloat(formatEther(totalRepaid)),
       });
-    } catch (error) {
-      console.error('Error loading credit profile:', error);
-    } finally {
-      setIsLoading(false);
     }
-  };
+  }, [profileData, loanHistoryData, maxBorrowData]);
 
   const getStatusColor = (status) => {
     switch (status) {
