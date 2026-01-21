@@ -338,8 +338,8 @@ const DePINFinance = () => {
   };
 
   const handleConfirmFunding = async () => {
-    if (!fundingAmount || parseFloat(fundingAmount) <= 0) {
-      toast.error('Please enter a valid amount');
+    if (!fundingAmount || parseFloat(fundingAmount) < 0.01) {
+      toast.error('Minimum contribution is 0.01 CTC');
       return;
     }
 
@@ -347,19 +347,24 @@ const DePINFinance = () => {
     if (!project) return;
 
     try {
-      toast.info('Submitting transaction...');
+      toast.info('Submitting transaction to DePIN contract...');
       
-      // Call smart contract to fund project
+      // Call smart contract contribute function (matches DEPIN.sol)
       writeContract({
         address: DEPIN_FINANCE_ADDRESS,
         abi: DEPIN_FINANCE_ABI,
-        functionName: 'fundProject',
-        args: [BigInt(selectedProject.replace(/-/g, '').slice(0, 16))], // Convert UUID to uint256
+        functionName: 'contribute',
         value: parseEther(fundingAmount.toString()),
       });
     } catch (error) {
       console.error('Transaction error:', error);
-      toast.error('Transaction failed');
+      if (error.message?.includes('User rejected')) {
+        toast.error('Transaction cancelled by user');
+      } else if (error.message?.includes('insufficient funds')) {
+        toast.error('Insufficient CTC balance');
+      } else {
+        toast.error('Transaction failed: ' + (error.shortMessage || error.message));
+      }
     }
   };
 
