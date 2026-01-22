@@ -12,11 +12,8 @@ import { useWalletContext } from '@/contexts/WalletContext';
 import { toast } from 'sonner';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { parseEther, formatEther } from 'viem';
-import { useWriteContract, useWaitForTransactionReceipt, useAccount } from 'wagmi';
+import { useWriteContract, useWaitForTransactionReceipt, useAccount, useReadContract, useBlockNumber } from 'wagmi';
 import { Zap, Sun, Wifi, Car, DollarSign, TrendingUp, Users, Loader2, Shield, Target, Award, ExternalLink, Search, Filter, X } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Slider } from '@/components/ui/slider';
-import { DEPIN_FINANCE_ADDRESS, DEPIN_FINANCE_ABI } from '@/hooks/useContract';
 
 const DePINFinance = () => {
   const [projects, setProjects] = useState([]);
@@ -29,13 +26,36 @@ const DePINFinance = () => {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [minROI, setMinROI] = useState(0);
   const [minProgress, setMinProgress] = useState(0);
+  const [isFunding, setIsFunding] = useState(false);
   const { isConnected } = useWalletContext();
   const { address } = useAccount();
   const { addNotification } = useNotifications();
-  const { writeContract, data: txHash } = useWriteContract();
+  const { writeContractAsync, data: txHash, isPending } = useWriteContract();
   const { isLoading: isTxPending, isSuccess: isTxSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
   });
+  const { data: blockNumber } = useBlockNumber({ watch: true });
+
+  // Fetch real pool stats from contract
+  const { data: poolStats, refetch: refetchPoolStats } = useReadContract({
+    address: DEPIN_FINANCE_ADDRESS,
+    abi: DEPIN_FINANCE_ABI,
+    functionName: 'getPoolStats',
+    query: { enabled: true }
+  });
+
+  // Auto-refresh on new blocks
+  useEffect(() => {
+    if (blockNumber) {
+      refetchPoolStats();
+    }
+  }, [blockNumber, refetchPoolStats]);
+
+  // Parse pool stats
+  const realPoolStats = poolStats ? {
+    totalContributions: formatEther(poolStats[1] ?? 0n),
+    totalYieldsDistributed: formatEther(poolStats[2] ?? 0n),
+  } : null;
 
   const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))', 'hsl(var(--muted))'];
 
@@ -210,6 +230,7 @@ const DePINFinance = () => {
 
   useEffect(() => {
     if (isTxSuccess && selectedProject) {
+      setIsFunding(false);
       handleSuccessfulFunding();
     }
   }, [isTxSuccess]);
@@ -346,18 +367,28 @@ const DePINFinance = () => {
     const project = projects.find(p => p.id === selectedProject);
     if (!project) return;
 
+    setIsFunding(true);
     try {
       toast.info('Submitting transaction to DePIN contract...');
       
       // Call smart contract contribute function (matches DEPIN.sol)
-      writeContract({
+      const hash = await writeContractAsync({
         address: DEPIN_FINANCE_ADDRESS,
         abi: DEPIN_FINANCE_ABI,
         functionName: 'contribute',
         value: parseEther(fundingAmount.toString()),
       });
+      
+      toast.success('Transaction submitted!', {
+        description: `Hash: ${hash.slice(0, 10)}...`,
+        action: {
+          label: 'View',
+          onClick: () => window.open(`https://creditcoin-testnet.blockscout.com/tx/${hash}`, '_blank')
+        }
+      });
     } catch (error) {
       console.error('Transaction error:', error);
+      setIsFunding(false);
       if (error.message?.includes('User rejected')) {
         toast.error('Transaction cancelled by user');
       } else if (error.message?.includes('insufficient funds')) {
@@ -445,17 +476,17 @@ const DePINFinance = () => {
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <StatsCard
-              title="Total Financed"
-              value={`$${(totalFinanced / 1000000).toFixed(1)}M`}
-              description="Across all projects"
+              title="TVL (On-Chain)"
+              value={realPoolStats ? `${parseFloat(realPoolStats.totalContributions).toFixed(2)} CTC` : `$${(totalFinanced / 1000000).toFixed(1)}M`}
+              description="Total value locked"
               icon={DollarSign}
               trend={15.2}
             />
             <StatsCard
-              title="Active Projects"
-              value={projects.length}
-              description="Currently funded"
-              icon={Users}
+              title="Yields Distributed"
+              value={realPoolStats ? `${parseFloat(realPoolStats.totalYieldsDistributed).toFixed(4)} CTC` : '0 CTC'}
+              description="Total rewards paid"
+              icon={TrendingUp}
               trend={8.7}
             />
             <StatsCard
@@ -465,10 +496,10 @@ const DePINFinance = () => {
               icon={Award}
             />
             <StatsCard
-              title="Avg. Ownership"
-              value={`${contributions.length > 0 ? (totalOwnership / contributions.length).toFixed(2) : 0}%`}
-              description="Per project funded"
-              icon={TrendingUp}
+              title="Active Projects"
+              value={projects.length}
+              description="Currently funded"
+              icon={Users}
             />
           </div>
 
@@ -774,13 +805,13 @@ const DePINFinance = () => {
 
                             <Button
                               onClick={handleConfirmFunding}
-                              disabled={!fundingAmount || parseFloat(fundingAmount) <= 0 || isTxPending}
+                              disabled={!fundingAmount || parseFloat(fundingAmount) <= 0 || isFunding || isPending || isTxPending}
                               className="w-full btn-mooncreditfi"
                             >
-                              {isTxPending ? (
+                              {(isFunding || isPending || isTxPending) ? (
                                 <>
                                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                  Processing...
+                                  {isTxPending ? 'Confirming...' : 'Processing...'}
                                 </>
                               ) : (
                                 <>
