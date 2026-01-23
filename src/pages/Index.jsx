@@ -107,63 +107,71 @@ const Index = () => {
     const saved = localStorage.getItem('cryptoFavorites');
     return saved ? JSON.parse(saved) : [];
   });
-  const { balance, isConnected } = useWalletContext();
+  const { balance, isConnected, address } = useWalletContext();
   
-  // On-chain user data
-  const { data: lenderBalance } = useReadContract({
+  const { data: blockNumber } = useBlockNumber({ watch: true });
+  
+  // On-chain user data - lender info
+  const { data: lenderInfo, refetch: refetchLenderInfo } = useReadContract({
     address: LENDING_POOL_ADDRESS,
     abi: LENDING_POOL_ABI,
-    functionName: 'getLenderBalance',
-    args: isConnected ? [localStorage.getItem('connectedAddress') || undefined] : undefined,
-    query: { enabled: isConnected }
+    functionName: 'lenders',
+    args: address ? [address] : undefined,
+    query: { enabled: !!address }
   });
 
-  const { data: creditProfile } = useReadContract({
+  // Yield earned
+  const { data: yieldData, refetch: refetchYield } = useReadContract({
+    address: LENDING_POOL_ADDRESS,
+    abi: LENDING_POOL_ABI,
+    functionName: 'calculateYieldEarned',
+    args: address ? [address] : undefined,
+    query: { enabled: !!address }
+  });
+
+  // Credit profile
+  const { data: creditProfile, refetch: refetchCredit } = useReadContract({
     address: CREDIT_PROFILE_ADDRESS,
     abi: CREDIT_PROFILE_ABI,
     functionName: 'getProfile',
-    args: isConnected ? [localStorage.getItem('connectedAddress') || undefined] : undefined,
-    query: { enabled: isConnected }
+    args: address ? [address] : undefined,
+    query: { enabled: !!address }
   });
 
-  const [activeLoanAmount, setActiveLoanAmount] = useState('0');
-  const [creditScore, setCreditScore] = useState(0);
-  const [yieldEarned, setYieldEarned] = useState('0');
-
   // Pool stats for TVL
-  const { data: poolStats } = useReadContract({
+  const { data: poolStats, refetch: refetchPool } = useReadContract({
     address: LENDING_POOL_ADDRESS,
     abi: LENDING_POOL_ABI,
     functionName: 'getPoolStats',
     query: { enabled: true },
   });
 
-  const totalDeposited = poolStats && poolStats.totalDeposited != null ? Number(poolStats.totalDeposited) : null;
+  // Borrower info
+  const { data: borrowerInfo, refetch: refetchBorrower } = useReadContract({
+    address: LENDING_POOL_ADDRESS,
+    abi: LENDING_POOL_ABI,
+    functionName: 'borrowers',
+    args: address ? [address] : undefined,
+    query: { enabled: !!address }
+  });
 
-  // Update displayed values when data is available
+  // Refetch on new blocks
   useEffect(() => {
-    if (lenderBalance) setActiveLoanAmount((Number(formatEther(lenderBalance)) || 0).toFixed(4));
-  }, [lenderBalance]);
-
-  useEffect(() => {
-    if (creditProfile) {
-      setCreditScore(Number(creditProfile[0]) || 0);
-      // availableCredit and utilizedCredit are indices 4/5 per ABI — adjust if needed
-      try {
-        const available = Number(formatEther(creditProfile[5] || 0));
-        const utilized = Number(formatEther(creditProfile[4] || 0));
-        setYieldEarned(((utilized / (available + utilized)) * 0.085).toFixed(4));
-      } catch (e) {
-        // ignore
-      }
+    if (blockNumber) {
+      refetchLenderInfo?.();
+      refetchYield?.();
+      refetchCredit?.();
+      refetchPool?.();
+      refetchBorrower?.();
     }
-  }, [creditProfile]);
-
-  // Refresh when new block arrives
-  const { data: blockNumber } = useBlockNumber({ watch: true });
-  useEffect(() => {
-    // wagmi useReadContract will auto-refresh if args change; block trigger allows UI update after tx
   }, [blockNumber]);
+
+  // Parse values with safe defaults
+  const depositedBalance = lenderInfo?.[0] ? formatEther(lenderInfo[0]) : '0';
+  const yieldEarned = yieldData ? formatEther(yieldData) : '0';
+  const creditScore = creditProfile ? Number(creditProfile[0] ?? 0) : 0;
+  const activeLoanAmount = borrowerInfo?.[0] ? formatEther(borrowerInfo[0]) : '0';
+  const totalDeposited = poolStats?.[0] ? formatEther(poolStats[0]) : '0';
   const { data: cryptos, isLoading, isError } = useQuery({
     queryKey: ['cryptos'],
     queryFn: fetchCryptos,
@@ -293,15 +301,15 @@ const Index = () => {
         <h2 className="text-2xl font-bold mb-4">Dashboard Overview</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatsCard
-            title="Wallet Balance"
-            value={isConnected ? `${balance} CTC` : 'Not Connected'}
-            description="Your current CTC balance"
+            title="Deposited Balance"
+            value={isConnected ? `${parseFloat(depositedBalance).toFixed(4)} CTC` : 'Not Connected'}
+            description="Your lending position"
             icon={Wallet}
             className="card-glow"
           />
           <StatsCard
             title="Active Loan"
-            value={`${activeLoanAmount} CTC`}
+            value={`${parseFloat(activeLoanAmount).toFixed(4)} CTC`}
             description="Current borrowed amount"
             icon={TrendingDown}
             className="card-glow"
@@ -315,7 +323,7 @@ const Index = () => {
           />
           <StatsCard
             title="Yield Earned"
-            value={`${yieldEarned} CTC`}
+            value={`${parseFloat(yieldEarned).toFixed(6)} CTC`}
             description="Total earnings from lending"
             icon={TrendingUp}
             trend={parseFloat(yieldEarned) > 0 ? 8.5 : 0}
@@ -350,7 +358,7 @@ const Index = () => {
           />
           <StatsCard
             title="TVL"
-            value={totalDeposited ? `$${(totalDeposited / 1e6).toFixed(2)}M` : '—'}
+            value={`${parseFloat(totalDeposited).toFixed(4)} CTC`}
             description="Total Value Locked in pool"
             icon={Users}
             trend={23.1}
