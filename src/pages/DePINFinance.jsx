@@ -9,27 +9,30 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import StatsCard from '@/components/StatsCard';
-import { supabase } from '@/integrations/supabase/client';
 import { useWalletContext } from '@/contexts/WalletContext';
 import { toast } from 'sonner';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { parseEther, formatEther } from 'viem';
 import { useWriteContract, useWaitForTransactionReceipt, useAccount, useReadContract, useBlockNumber } from 'wagmi';
-import { Zap, Sun, Wifi, Car, DollarSign, TrendingUp, Users, Loader2, Shield, Target, Award, ExternalLink, Search, Filter, X } from 'lucide-react';
+import { Zap, Sun, Wifi, Car, DollarSign, TrendingUp, Users, Loader2, Shield, Target, Award, ExternalLink, Search, Filter, X, LogOut } from 'lucide-react';
 import { DEPIN_FINANCE_ADDRESS, DEPIN_FINANCE_ABI } from '@/hooks/useContract';
 
 const DePINFinance = () => {
   const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [fundingAmount, setFundingAmount] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
-  const [contributions, setContributions] = useState([]);
+  const [localContributions, setLocalContributions] = useState(() => {
+    const saved = localStorage.getItem('depinContributions');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [minROI, setMinROI] = useState(0);
   const [minProgress, setMinProgress] = useState(0);
   const [isFunding, setIsFunding] = useState(false);
+  const [isWithdrawing, setIsWithdrawing] = useState(false);
   const { isConnected } = useWalletContext();
   const { address } = useAccount();
   const { addNotification } = useNotifications();
@@ -47,17 +50,36 @@ const DePINFinance = () => {
     query: { enabled: true }
   });
 
+  // Fetch contributor data from contract
+  const { data: contributorData, refetch: refetchContributor } = useReadContract({
+    address: DEPIN_FINANCE_ADDRESS,
+    abi: DEPIN_FINANCE_ABI,
+    functionName: 'getContributor',
+    args: address ? [address] : undefined,
+    query: { enabled: !!address }
+  });
+
   // Auto-refresh on new blocks
   useEffect(() => {
     if (blockNumber) {
       refetchPoolStats();
+      refetchContributor();
     }
-  }, [blockNumber, refetchPoolStats]);
+  }, [blockNumber, refetchPoolStats, refetchContributor]);
 
   // Parse pool stats
   const realPoolStats = poolStats ? {
+    totalShares: formatEther(poolStats[0] ?? 0n),
     totalContributions: formatEther(poolStats[1] ?? 0n),
     totalYieldsDistributed: formatEther(poolStats[2] ?? 0n),
+    availableBalance: formatEther(poolStats[3] ?? 0n),
+  } : null;
+
+  // Parse contributor data
+  const userData = contributorData ? {
+    shares: contributorData[0] ?? 0n,
+    tokenId: contributorData[1] ?? 0n,
+    pendingYield: contributorData[2] ?? 0n
   } : null;
 
   const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))', 'hsl(var(--muted))'];
@@ -222,133 +244,100 @@ const DePINFinance = () => {
   useEffect(() => {
     // Load mock data immediately for instant display
     setProjects(mockProjects);
-    setLoading(false);
-    
-    // Then try to fetch from database in background
-    fetchProjects();
-    if (address) {
-      fetchUserContributions();
-    }
-  }, [address]);
+  }, []);
+
+  // Save contributions to localStorage
+  useEffect(() => {
+    localStorage.setItem('depinContributions', JSON.stringify(localContributions));
+  }, [localContributions]);
 
   useEffect(() => {
-    if (isTxSuccess && selectedProject) {
+    if (isTxSuccess && selectedProject && isFunding) {
       setIsFunding(false);
       handleSuccessfulFunding();
     }
+    if (isTxSuccess && isWithdrawing) {
+      setIsWithdrawing(false);
+      toast.success('Withdrawal successful!');
+      addNotification('Successfully withdrew from DePIN pool', 'success');
+    }
   }, [isTxSuccess]);
 
-  const fetchProjects = async () => {
-    try {
-      // Use AbortController for timeout
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000);
-      
-      const { data, error } = await supabase
-        .from('depin_projects')
-        .select('*')
-        .eq('status', 'active')
-        .order('created_at', { ascending: false })
-        .abortSignal(controller.signal);
-      
-      clearTimeout(timeoutId);
-      
-      if (error) throw error;
-      if (data && data.length > 0) {
-        setProjects(data);
-      }
-    } catch (error) {
-      // Silently fail - mock data already loaded
-      console.log('Using mock data for DePIN projects');
-    }
-  };
-
-  const fetchUserContributions = async () => {
-    if (!address) return;
-    
-    try {
-      const { data, error } = await supabase
-        .from('user_contributions')
-        .select(`
-          *,
-          depin_projects (
-            name,
-            category,
-            image
-          )
-        `)
-        .eq('user_address', address.toLowerCase())
-        .order('created_at', { ascending: false });
-      
-      if (error) {
-        console.error('Error fetching contributions:', error);
-        setContributions([]);
-        return;
-      }
-      setContributions(data || []);
-    } catch (error) {
-      console.error('Error fetching contributions:', error);
-      setContributions([]);
-    }
-  };
-
-  const handleSuccessfulFunding = async () => {
+  const handleSuccessfulFunding = () => {
     const amount = parseFloat(fundingAmount);
     const project = projects.find(p => p.id === selectedProject);
     
     if (!project || !address) return;
 
+    // Generate NFT token ID
+    const nftTokenId = `NFT-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Calculate ownership percentage
+    const newFunding = parseFloat(project.funding_current) + amount;
+    const ownershipPercentage = (amount / (newFunding || 1)) * 100;
+
+    // Save contribution locally
+    const newContribution = {
+      id: Date.now().toString(),
+      user_address: address.toLowerCase(),
+      project_id: selectedProject,
+      amount: amount,
+      ownership_percentage: ownershipPercentage.toFixed(4),
+      transaction_hash: txHash,
+      nft_token_id: nftTokenId,
+      created_at: new Date().toISOString(),
+      project_name: project.name,
+      project_category: project.category
+    };
+    
+    setLocalContributions(prev => [newContribution, ...prev]);
+    
+    toast.success(
+      <div className="space-y-2">
+        <p className="font-semibold">Successfully funded {project.name}!</p>
+        <p className="text-sm">🎉 Proof-of-Impact NFT minted on-chain!</p>
+        <p className="text-xs">Your shares: {amount} CTC</p>
+      </div>,
+      { duration: 5000 }
+    );
+    
+    addNotification(
+      `Funded ${project.name} with ${amount} CTC - NFT minted!`,
+      'success'
+    );
+    
+    setFundingAmount('');
+    setSelectedProject(null);
+    setModalOpen(false);
+  };
+
+  const handleClaimYield = async () => {
+    if (!userData || userData.pendingYield === 0n) {
+      toast.error('No yield to claim');
+      return;
+    }
+    
     try {
-      // Update project funding
-      const newFunding = parseFloat(project.funding_current) + amount;
-      const { error: projectError } = await supabase
-        .from('depin_projects')
-        .update({ funding_current: newFunding })
-        .eq('id', selectedProject);
+      const hash = await writeContractAsync({
+        address: DEPIN_FINANCE_ADDRESS,
+        abi: DEPIN_FINANCE_ABI,
+        functionName: 'claimYield',
+      });
       
-      if (projectError) throw projectError;
-
-      // Calculate ownership percentage
-      const ownershipPercentage = (amount / (newFunding || 1)) * 100;
-
-      // Record contribution
-      const { data: contributionData, error: contributionError } = await supabase
-        .from('user_contributions')
-        .insert({
-          user_address: address.toLowerCase(),
-          project_id: selectedProject,
-          amount: amount,
-          ownership_percentage: ownershipPercentage.toFixed(4),
-          transaction_hash: txHash,
-          nft_token_id: `NFT-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-        })
-        .select()
-        .single();
-      
-      if (contributionError) throw contributionError;
-      
-      toast.success(
-        <div className="space-y-2">
-          <p className="font-semibold">Successfully funded {project.name}!</p>
-          <p className="text-sm">🎉 Proof-of-Impact NFT minted!</p>
-          <p className="text-xs">NFT ID: {contributionData.nft_token_id}</p>
-        </div>,
-        { duration: 5000 }
-      );
-      
-      addNotification(
-        `Funded ${project.name} with ${amount} CTC - NFT minted: ${contributionData.nft_token_id}`,
-        'success'
-      );
-      
-      fetchProjects();
-      fetchUserContributions();
-      setFundingAmount('');
-      setSelectedProject(null);
-      setModalOpen(false);
+      toast.success('Claiming yield...', {
+        description: `Hash: ${hash.slice(0, 10)}...`,
+        action: {
+          label: 'View',
+          onClick: () => window.open(`https://creditcoin-testnet.blockscout.com/tx/${hash}`, '_blank')
+        }
+      });
     } catch (error) {
-      console.error('Error recording contribution:', error);
-      toast.error('Failed to record contribution');
+      console.error('Claim error:', error);
+      if (error.message?.includes('User rejected')) {
+        toast.error('Transaction cancelled');
+      } else {
+        toast.error('Claim failed: ' + (error.shortMessage || error.message));
+      }
     }
   };
 
@@ -431,8 +420,15 @@ const DePINFinance = () => {
 
   const hasActiveFilters = searchQuery || categoryFilter !== 'all' || minROI > 0 || minProgress > 0;
 
-  const totalContributed = contributions.reduce((sum, c) => sum + parseFloat(c.amount || 0), 0);
-  const totalOwnership = contributions.reduce((sum, c) => sum + parseFloat(c.ownership_percentage || 0), 0);
+  // Use on-chain data for user stats
+  const onChainShares = userData ? formatEther(userData.shares) : '0';
+  const onChainPendingYield = userData ? formatEther(userData.pendingYield) : '0';
+  const onChainTokenId = userData?.tokenId ?? 0n;
+  
+  // Calculate ownership percentage from on-chain data
+  const ownershipPercent = userData && realPoolStats && parseFloat(realPoolStats.totalShares) > 0
+    ? (parseFloat(onChainShares) / parseFloat(realPoolStats.totalShares)) * 100
+    : 0;
 
   return (
     <div className="space-y-6">
@@ -480,8 +476,8 @@ const DePINFinance = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <StatsCard
               title="TVL (On-Chain)"
-              value={realPoolStats ? `${parseFloat(realPoolStats.totalContributions).toFixed(2)} CTC` : `$${(totalFinanced / 1000000).toFixed(1)}M`}
-              description="Total value locked"
+              value={realPoolStats ? `${parseFloat(realPoolStats.totalContributions).toFixed(4)} CTC` : '0 CTC'}
+              description="Total value locked in contract"
               icon={DollarSign}
               trend={15.2}
             />
@@ -493,18 +489,63 @@ const DePINFinance = () => {
               trend={8.7}
             />
             <StatsCard
-              title="Your Contributions"
-              value={`${totalContributed.toFixed(2)} CTC`}
-              description={`${contributions.length} projects funded`}
+              title="Your Shares"
+              value={`${parseFloat(onChainShares).toFixed(4)} CTC`}
+              description={`${ownershipPercent.toFixed(2)}% ownership`}
               icon={Award}
             />
             <StatsCard
-              title="Active Projects"
-              value={projects.length}
-              description="Currently funded"
-              icon={Users}
+              title="Pending Yield"
+              value={`${parseFloat(onChainPendingYield).toFixed(6)} CTC`}
+              description="Claimable rewards"
+              icon={TrendingUp}
+              trend={parseFloat(onChainPendingYield) > 0 ? 12 : 0}
             />
           </div>
+
+          {/* On-Chain Position Card */}
+          {isConnected && userData && parseFloat(onChainShares) > 0 && (
+            <Card className="card-glow border-primary/20">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-primary" />
+                  Your On-Chain Position
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="p-4 bg-muted/50 rounded-lg">
+                    <p className="text-sm text-muted-foreground">Your Shares</p>
+                    <p className="text-xl font-bold">{parseFloat(onChainShares).toFixed(4)} CTC</p>
+                  </div>
+                  <div className="p-4 bg-muted/50 rounded-lg">
+                    <p className="text-sm text-muted-foreground">Ownership</p>
+                    <p className="text-xl font-bold text-primary">{ownershipPercent.toFixed(2)}%</p>
+                  </div>
+                  <div className="p-4 bg-green-500/10 rounded-lg border border-green-500/20">
+                    <p className="text-sm text-muted-foreground">Pending Yield</p>
+                    <p className="text-xl font-bold text-green-500">{parseFloat(onChainPendingYield).toFixed(6)} CTC</p>
+                  </div>
+                  <div className="p-4 bg-muted/50 rounded-lg flex flex-col justify-between">
+                    {onChainTokenId > 0n && (
+                      <Badge variant="secondary" className="w-fit mb-2">NFT #{onChainTokenId.toString()}</Badge>
+                    )}
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleClaimYield}
+                        disabled={isPending || isTxPending || parseFloat(onChainPendingYield) <= 0}
+                        className="flex-1"
+                      >
+                        {isPending || isTxPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Claim Yield'}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -568,24 +609,24 @@ const DePINFinance = () => {
             </Card>
           </div>
 
-          {/* My Contributions Section */}
-          {isConnected && contributions.length > 0 && (
-            <Card className="card-glow border-primary/20">
+          {/* My Local Contributions History */}
+          {isConnected && localContributions.length > 0 && (
+            <Card className="card-glow border-secondary/20">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Award className="h-5 w-5 text-primary" />
-                  My Contributions
+                  <Award className="h-5 w-5 text-secondary" />
+                  Contribution History
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {contributions.map((contribution) => (
+                  {localContributions.filter(c => c.user_address === address?.toLowerCase()).map((contribution) => (
                     <div key={contribution.id} className="p-4 rounded-lg border border-border bg-card hover:bg-muted/50 transition-colors">
                       <div className="flex items-start justify-between mb-3">
                         <div>
-                          <h4 className="font-semibold">{contribution.depin_projects?.name}</h4>
+                          <h4 className="font-semibold">{contribution.project_name}</h4>
                           <Badge variant="secondary" className="mt-1 text-xs">
-                            {contribution.depin_projects?.category}
+                            {contribution.project_category}
                           </Badge>
                         </div>
                       </div>
@@ -594,22 +635,17 @@ const DePINFinance = () => {
                           <span className="text-muted-foreground">Amount:</span>
                           <span className="font-semibold">{parseFloat(contribution.amount).toFixed(4)} CTC</span>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Ownership:</span>
-                          <span className="font-semibold text-primary">{parseFloat(contribution.ownership_percentage).toFixed(2)}%</span>
-                        </div>
-                        {contribution.nft_token_id && (
+                        {contribution.transaction_hash && (
                           <div className="flex justify-between items-center pt-2 border-t border-border">
-                            <span className="text-muted-foreground">NFT Proof:</span>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-6 text-xs"
-                              onClick={() => toast.info(`NFT ID: ${contribution.nft_token_id}`)}
+                            <span className="text-muted-foreground">Transaction:</span>
+                            <a
+                              href={`https://creditcoin-testnet.blockscout.com/tx/${contribution.transaction_hash}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-primary hover:underline text-xs flex items-center gap-1"
                             >
-                              <ExternalLink className="h-3 w-3 mr-1" />
-                              View
-                            </Button>
+                              View <ExternalLink className="h-3 w-3" />
+                            </a>
                           </div>
                         )}
                       </div>
