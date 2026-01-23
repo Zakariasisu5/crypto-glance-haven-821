@@ -14,6 +14,7 @@ import { useNotifications } from '@/contexts/NotificationContext';
 import { parseEther, formatEther } from 'viem';
 import { useWriteContract, useWaitForTransactionReceipt, useAccount, useReadContract, useBlockNumber } from 'wagmi';
 import { Zap, Sun, Wifi, Car, DollarSign, TrendingUp, Users, Loader2, Shield, Target, Award, ExternalLink, Search, Filter, X } from 'lucide-react';
+import { DEPIN_FINANCE_ADDRESS, DEPIN_FINANCE_ABI } from '@/hooks/useContract';
 
 const DePINFinance = () => {
   const [projects, setProjects] = useState([]);
