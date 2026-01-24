@@ -112,30 +112,30 @@ const Index = () => {
   const { data: blockNumber } = useBlockNumber({ watch: true });
   
   // On-chain user data - lender info
-  const { data: lenderInfo, refetch: refetchLenderInfo } = useReadContract({
+  const { data: lenderInfo, refetch: refetchLenderInfo, isError: lenderError } = useReadContract({
     address: LENDING_POOL_ADDRESS,
     abi: LENDING_POOL_ABI,
     functionName: 'lenders',
-    args: address ? [address] : undefined,
-    query: { enabled: !!address }
+    args: [address],
+    query: { enabled: isConnected && !!address }
   });
 
   // Yield earned
-  const { data: yieldData, refetch: refetchYield } = useReadContract({
+  const { data: yieldData, refetch: refetchYield, isError: yieldError } = useReadContract({
     address: LENDING_POOL_ADDRESS,
     abi: LENDING_POOL_ABI,
     functionName: 'calculateYieldEarned',
-    args: address ? [address] : undefined,
-    query: { enabled: !!address }
+    args: [address],
+    query: { enabled: isConnected && !!address }
   });
 
   // Credit profile
-  const { data: creditProfile, refetch: refetchCredit } = useReadContract({
+  const { data: creditProfile, refetch: refetchCredit, isError: creditError } = useReadContract({
     address: CREDIT_PROFILE_ADDRESS,
     abi: CREDIT_PROFILE_ABI,
     functionName: 'getProfile',
-    args: address ? [address] : undefined,
-    query: { enabled: !!address }
+    args: [address],
+    query: { enabled: isConnected && !!address }
   });
 
   // Pool stats for TVL
@@ -143,33 +143,47 @@ const Index = () => {
     address: LENDING_POOL_ADDRESS,
     abi: LENDING_POOL_ABI,
     functionName: 'getPoolStats',
-    query: { enabled: true },
   });
 
   // Borrower info
-  const { data: borrowerInfo, refetch: refetchBorrower } = useReadContract({
+  const { data: borrowerInfo, refetch: refetchBorrower, isError: borrowerError } = useReadContract({
     address: LENDING_POOL_ADDRESS,
     abi: LENDING_POOL_ABI,
     functionName: 'borrowers',
-    args: address ? [address] : undefined,
-    query: { enabled: !!address }
+    args: [address],
+    query: { enabled: isConnected && !!address }
   });
+
+  // Debug logging for contract reads
+  useEffect(() => {
+    if (isConnected && address) {
+      console.log('Dashboard contract data:', {
+        address,
+        lenderInfo,
+        yieldData,
+        creditProfile,
+        poolStats,
+        borrowerInfo,
+        errors: { lenderError, yieldError, creditError, borrowerError }
+      });
+    }
+  }, [lenderInfo, yieldData, creditProfile, poolStats, borrowerInfo, address, isConnected]);
 
   // Refetch on new blocks
   useEffect(() => {
-    if (blockNumber) {
+    if (blockNumber && isConnected) {
       refetchLenderInfo?.();
       refetchYield?.();
       refetchCredit?.();
       refetchPool?.();
       refetchBorrower?.();
     }
-  }, [blockNumber]);
+  }, [blockNumber, isConnected]);
 
   // Parse values with safe defaults
   const depositedBalance = lenderInfo?.[0] ? formatEther(lenderInfo[0]) : '0';
   const yieldEarned = yieldData ? formatEther(yieldData) : '0';
-  const creditScore = creditProfile ? Number(creditProfile[0] ?? 0) : 0;
+  const creditScore = creditProfile?.[0] ? Number(creditProfile[0]) : 0;
   const activeLoanAmount = borrowerInfo?.[0] ? formatEther(borrowerInfo[0]) : '0';
   const totalDeposited = poolStats?.[0] ? formatEther(poolStats[0]) : '0';
   const { data: cryptos, isLoading, isError } = useQuery({
