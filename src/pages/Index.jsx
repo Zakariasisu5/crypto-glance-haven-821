@@ -107,7 +107,8 @@ const Index = () => {
     const saved = localStorage.getItem('cryptoFavorites');
     return saved ? JSON.parse(saved) : [];
   });
-  const { balance, isConnected, address } = useWalletContext();
+  const { balance, isConnected, account } = useWalletContext();
+  const address = account;
   
   const { data: blockNumber } = useBlockNumber({ watch: true });
   
