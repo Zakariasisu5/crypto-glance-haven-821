@@ -590,13 +590,13 @@ const Landing = () => {
               <span className="font-semibold text-sm sm:text-base">MoonCreditFi</span>
             </div>
             <div className="flex gap-4 sm:gap-6 text-xs sm:text-sm text-muted-foreground">
-              <a href="#about" className="hover:text-primary transition-colors">About</a>
-              <a href="#terms" className="hover:text-primary transition-colors">Terms</a>
-              <a href="#privacy" className="hover:text-primary transition-colors">Privacy</a>
-              <a href="#contact" className="hover:text-primary transition-colors">Contact</a>
+              <a href="#/about" className="hover:text-primary transition-colors">About</a>
+              <a href="#/terms" className="hover:text-primary transition-colors">Terms</a>
+              <a href="#/privacy" className="hover:text-primary transition-colors">Privacy</a>
+              <a href="#/contact" className="hover:text-primary transition-colors">Contact</a>
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground">
-              © 2025 MoonCreditFi
+              © 2026 MoonCreditFi
             </p>
           </div>
         </div>

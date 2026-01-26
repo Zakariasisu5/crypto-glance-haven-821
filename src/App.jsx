@@ -13,7 +13,11 @@ import { routes } from "./nav-items";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 import Landing from "./pages/Landing";
-import DePINFundingComponent from "./components/DePINFundingComponent"; // Add this import for the new component
+import About from "./pages/About";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
+import Contact from "./pages/Contact";
+import DePINFundingComponent from "./components/DePINFundingComponent";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +35,10 @@ const App = () => {
               <HashRouter>
                 <Routes>
                   <Route path="/" element={<Landing />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/terms" element={<Terms />} />
+                  <Route path="/privacy" element={<Privacy />} />
+                  <Route path="/contact" element={<Contact />} />
                   <Route
                     path="/*"
                     element={
