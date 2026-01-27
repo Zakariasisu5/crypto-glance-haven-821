@@ -36,9 +36,9 @@ const WalletConnectButton = () => {
             {(() => {
               if (!connected) {
                 return (
-                  <Button onClick={openConnectModal} className="btn-mooncreditfi">
-                    <Wallet className="h-4 w-4 mr-2" />
-                    Connect Wallet
+                  <Button onClick={openConnectModal} className="btn-mooncreditfi inline-flex items-center px-3 sm:px-4">
+                    <Wallet className="h-4 w-4 mr-2 sm:mr-2" />
+                    <span className="hidden sm:inline">Connect Wallet</span>
                   </Button>
                 );
               }
@@ -84,9 +84,8 @@ const WalletConnectButton = () => {
                     size="sm"
                     className="flex items-center gap-2"
                   >
-                    <span className="font-mono text-xs">
-                      {account.displayName}
-                    </span>
+                    <span className="font-mono text-xs hidden sm:inline truncate max-w-[120px]">{account.displayName}</span>
+                    <span className="sm:hidden font-mono text-xs">{(account.address || account.displayName || '').slice(0,6) + '...' + (account.address || '').slice(-4)}</span>
                     <ChevronDown className="h-3 w-3" />
                   </Button>
                 </div>
