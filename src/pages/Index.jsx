@@ -303,28 +303,28 @@ const Index = () => {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="space-y-8"
+      className="space-y-4 sm:space-y-6 md:space-y-8 px-1 sm:px-0"
     >
       {/* Welcome Terminal Effect */}
-      <motion.div variants={itemVariants} className="bg-card border border-border rounded-lg p-6 font-mono text-sm">
-        <div className="text-primary mb-2">$ mooncreditfi.init()</div>
-        <div className="text-muted-foreground">{terminalText}</div>
+      <motion.div variants={itemVariants} className="bg-card border border-border rounded-lg p-3 sm:p-4 md:p-6 font-mono text-xs sm:text-sm">
+        <div className="text-primary mb-1 sm:mb-2">$ mooncreditfi.init()</div>
+        <div className="text-muted-foreground break-words">{terminalText}</div>
       </motion.div>
 
       {/* Dashboard Overview Cards */}
       <motion.div variants={itemVariants}>
-        <h2 className="text-2xl font-bold mb-4">Dashboard Overview</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4">Dashboard Overview</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
           <StatsCard
             title="Deposited Balance"
-            value={isConnected ? `${parseFloat(depositedBalance).toFixed(4)} CTC` : 'Not Connected'}
+            value={isConnected ? `${parseFloat(depositedBalance).toFixed(2)} CTC` : 'Not Connected'}
             description="Your lending position"
             icon={Wallet}
             className="card-glow"
           />
           <StatsCard
             title="Active Loan"
-            value={`${parseFloat(activeLoanAmount).toFixed(4)} CTC`}
+            value={`${parseFloat(activeLoanAmount).toFixed(2)} CTC`}
             description="Current borrowed amount"
             icon={TrendingDown}
             className="card-glow"
@@ -338,7 +338,7 @@ const Index = () => {
           />
           <StatsCard
             title="Yield Earned"
-            value={`${parseFloat(yieldEarned).toFixed(6)} CTC`}
+            value={`${parseFloat(yieldEarned).toFixed(4)} CTC`}
             description="Total earnings from lending"
             icon={TrendingUp}
             trend={parseFloat(yieldEarned) > 0 ? 8.5 : 0}
@@ -349,12 +349,12 @@ const Index = () => {
 
       {/* Market Stats Cards */}
       <motion.div variants={itemVariants}>
-        <h2 className="text-2xl font-bold mb-4">Market Statistics</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4">Market Statistics</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
           <StatsCard
             title="Total Market Cap"
             value={marketCapOverride ? marketCapOverride : formatMarketCap(globalMarketCap)}
-            description={marketCapOverride ? 'Global crypto market (override)' : 'Global crypto market'}
+            description={marketCapOverride ? 'Global (override)' : 'Global crypto market'}
             icon={DollarSign}
             trend={5.2}
           />
@@ -373,40 +373,40 @@ const Index = () => {
           />
           <StatsCard
             title="TVL"
-            value={`${parseFloat(totalDeposited).toFixed(4)} CTC`}
-            description="Total Value Locked in pool"
+            value={`${parseFloat(totalDeposited).toFixed(2)} CTC`}
+            description="Total Value Locked"
             icon={Users}
             trend={23.1}
           />
         </div>
       </motion.div>
 
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Market Overview</TabsTrigger>
-          <TabsTrigger value="creditcoin">Creditcoin Trends</TabsTrigger>
-          <TabsTrigger value="search">Asset Search</TabsTrigger>
+      <Tabs defaultValue="overview" className="space-y-3 sm:space-y-4">
+        <TabsList className="w-full flex overflow-x-auto no-scrollbar">
+          <TabsTrigger value="overview" className="flex-1 text-xs sm:text-sm">Overview</TabsTrigger>
+          <TabsTrigger value="creditcoin" className="flex-1 text-xs sm:text-sm">CTC Trends</TabsTrigger>
+          <TabsTrigger value="search" className="flex-1 text-xs sm:text-sm">Search</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <TabsContent value="overview" className="space-y-3 sm:space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
             <Card className="card-glow">
-              <CardHeader>
-                <CardTitle>Price Trends (7 Days)</CardTitle>
+              <CardHeader className="p-3 sm:p-4 md:p-6">
+                <CardTitle className="text-base sm:text-lg">Price Trends (7 Days)</CardTitle>
               </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
+              <CardContent className="p-2 sm:p-4 md:p-6 pt-0">
+                <ResponsiveContainer width="100%" height={200} className="sm:!h-[250px] md:!h-[300px]">
                   <LineChart data={priceHistory}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
+                    <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+                    <YAxis tick={{ fontSize: 10 }} width={50} />
                     <Tooltip />
                     <Line 
                       type="monotone" 
                       dataKey="price" 
                       stroke="hsl(var(--primary))" 
                       strokeWidth={2}
-                      dot={{ fill: 'hsl(var(--primary))', strokeWidth: 2, r: 4 }}
+                      dot={{ fill: 'hsl(var(--primary))', strokeWidth: 2, r: 3 }}
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -414,23 +414,23 @@ const Index = () => {
             </Card>
 
             <Card className="card-glow">
-              <CardHeader>
-                <CardTitle>Top Cryptocurrencies</CardTitle>
+              <CardHeader className="p-3 sm:p-4 md:p-6">
+                <CardTitle className="text-base sm:text-lg">Top Cryptocurrencies</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
+              <CardContent className="p-2 sm:p-4 md:p-6 pt-0">
+                <div className="space-y-2 sm:space-y-3 md:space-y-4">
                   {cryptos?.slice(0, 5).map((crypto, index) => (
-                    <div key={crypto.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <span className="text-sm font-mono text-muted-foreground">#{crypto.rank}</span>
-                        <div>
-                          <p className="font-medium">{crypto.name}</p>
-                          <p className="text-sm text-muted-foreground">{crypto.symbol}</p>
+                    <div key={crypto.id} className="flex items-center justify-between p-2 sm:p-3 bg-muted/50 rounded-lg">
+                      <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
+                        <span className="text-xs sm:text-sm font-mono text-muted-foreground">#{crypto.rank}</span>
+                        <div className="min-w-0">
+                          <p className="font-medium text-sm sm:text-base truncate">{crypto.name}</p>
+                          <p className="text-xs sm:text-sm text-muted-foreground">{crypto.symbol}</p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-semibold">${parseFloat(crypto.priceUsd).toFixed(2)}</p>
-                        <p className={`text-sm ${parseFloat(crypto.changePercent24Hr) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      <div className="text-right flex-shrink-0 ml-2">
+                        <p className="font-semibold text-sm sm:text-base">${parseFloat(crypto.priceUsd).toFixed(2)}</p>
+                        <p className={`text-xs sm:text-sm ${parseFloat(crypto.changePercent24Hr) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                           {parseFloat(crypto.changePercent24Hr).toFixed(2)}%
                         </p>
                       </div>
@@ -442,48 +442,49 @@ const Index = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="creditcoin" className="space-y-4">
+        <TabsContent value="creditcoin" className="space-y-3 sm:space-y-4">
           <Card className="card-glow">
-            <CardHeader>
-              <CardTitle>Creditcoin (CTC) Performance</CardTitle>
+            <CardHeader className="p-3 sm:p-4 md:p-6">
+              <CardTitle className="text-base sm:text-lg">Creditcoin (CTC) Performance</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <p className="text-sm text-muted-foreground">Current Price</p>
-                    <p className="text-2xl font-bold">
+            <CardContent className="p-2 sm:p-4 md:p-6 pt-0">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+                <div className="grid grid-cols-3 lg:grid-cols-1 gap-2 sm:gap-3 md:gap-4">
+                  <div className="p-2 sm:p-3 md:p-4 bg-muted/50 rounded-lg">
+                    <p className="text-xs sm:text-sm text-muted-foreground">Current Price</p>
+                    <p className="text-base sm:text-xl md:text-2xl font-bold">
                       {creditcoin ? `$${parseFloat(creditcoin.priceUsd).toFixed(4)}` : '$0.5847'}
                     </p>
-                    <p className={`text-sm ${(creditcoin ? parseFloat(creditcoin.changePercent24Hr) : 8.4) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                    <p className={`text-xs sm:text-sm ${(creditcoin ? parseFloat(creditcoin.changePercent24Hr) : 8.4) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                       {creditcoin ? `${parseFloat(creditcoin.changePercent24Hr).toFixed(2)}%` : '+8.4%'} (24h)
                     </p>
                   </div>
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <p className="text-sm text-muted-foreground">Market Cap</p>
-                    <p className="text-xl font-bold">
+                  <div className="p-2 sm:p-3 md:p-4 bg-muted/50 rounded-lg">
+                    <p className="text-xs sm:text-sm text-muted-foreground">Market Cap</p>
+                    <p className="text-sm sm:text-lg md:text-xl font-bold">
                       {creditcoin ? `$${(parseFloat(creditcoin.marketCapUsd) / 1e6).toFixed(1)}M` : '$45.2M'}
                     </p>
                   </div>
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <p className="text-sm text-muted-foreground">24h Volume</p>
-                    <p className="text-xl font-bold">
+                  <div className="p-2 sm:p-3 md:p-4 bg-muted/50 rounded-lg">
+                    <p className="text-xs sm:text-sm text-muted-foreground">24h Volume</p>
+                    <p className="text-sm sm:text-lg md:text-xl font-bold">
                       {creditcoin ? `$${(parseFloat(creditcoin.marketCapUsd) * 0.15 / 1e6).toFixed(2)}M` : '$6.8M'}
                     </p>
                   </div>
                 </div>
                 <div>
-                  <ResponsiveContainer width="100%" height={300}>
+                  <ResponsiveContainer width="100%" height={200} className="sm:!h-[250px] md:!h-[300px]">
                     <LineChart data={creditcoinHistory}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis 
                         dataKey="date" 
-                        tick={{ fontSize: 12 }}
+                        tick={{ fontSize: 10 }}
                         tickFormatter={(date) => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                       />
                       <YAxis 
-                        tick={{ fontSize: 12 }}
-                        tickFormatter={(value) => `$${value.toFixed(4)}`}
+                        tick={{ fontSize: 10 }}
+                        tickFormatter={(value) => `$${value.toFixed(3)}`}
+                        width={45}
                       />
                       <Tooltip 
                         formatter={(value) => [`$${value.toFixed(6)}`, 'Price']}
@@ -498,55 +499,55 @@ const Index = () => {
                       />
                     </LineChart>
                   </ResponsiveContainer>
-                  <p className="text-sm text-center text-muted-foreground mt-2">30-Day Price History</p>
+                  <p className="text-xs sm:text-sm text-center text-muted-foreground mt-1 sm:mt-2">30-Day Price History</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="search" className="space-y-4">
+        <TabsContent value="search" className="space-y-3 sm:space-y-4">
           <Card className="card-glow">
-            <CardHeader>
-              <CardTitle>Cryptocurrency Search</CardTitle>
+            <CardHeader className="p-3 sm:p-4 md:p-6">
+              <CardTitle className="text-base sm:text-lg">Cryptocurrency Search</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="relative mb-6">
+            <CardContent className="p-2 sm:p-4 md:p-6 pt-0">
+              <div className="relative mb-3 sm:mb-4 md:mb-6">
                 <Input
                   type="text"
                   placeholder="Search cryptocurrencies..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-9 sm:pl-10 text-sm sm:text-base"
                 />
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={16} />
               </div>
               
-              <div className="space-y-2 max-h-96 overflow-y-auto">
+              <div className="space-y-1.5 sm:space-y-2 max-h-72 sm:max-h-80 md:max-h-96 overflow-y-auto">
                 {filteredCryptos?.map((crypto) => (
-                  <div key={crypto.id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors">
-                    <div className="flex items-center space-x-3">
-                      <span className="text-sm font-mono text-muted-foreground">#{crypto.rank}</span>
-                      <div>
-                        <Link to={`/asset/${crypto.id}`} className="font-medium text-primary hover:underline">
+                  <div key={crypto.id} className="flex items-center justify-between p-2 sm:p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors">
+                    <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
+                      <span className="text-xs sm:text-sm font-mono text-muted-foreground">#{crypto.rank}</span>
+                      <div className="min-w-0">
+                        <Link to={`/asset/${crypto.id}`} className="font-medium text-sm sm:text-base text-primary hover:underline truncate block">
                           {crypto.name}
                         </Link>
-                        <p className="text-sm text-muted-foreground">{crypto.symbol}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">{crypto.symbol}</p>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0 ml-2">
                       <div className="text-right">
-                        <p className="font-semibold">${parseFloat(crypto.priceUsd).toFixed(2)}</p>
-                        <p className={`text-sm ${parseFloat(crypto.changePercent24Hr) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                        <p className="font-semibold text-sm sm:text-base">${parseFloat(crypto.priceUsd).toFixed(2)}</p>
+                        <p className={`text-xs sm:text-sm ${parseFloat(crypto.changePercent24Hr) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                           {parseFloat(crypto.changePercent24Hr).toFixed(2)}%
                         </p>
                       </div>
                       <button
                         onClick={() => toggleFavorite(crypto.id)}
-                        className="focus:outline-none hover:scale-110 transition-transform"
+                        className="focus:outline-none hover:scale-110 transition-transform p-1"
                       >
                         <Star
-                          size={16}
+                          size={14}
                           className={favorites.includes(crypto.id) ? "fill-yellow-500 text-yellow-500" : "text-muted-foreground hover:text-yellow-500"}
                         />
                       </button>
