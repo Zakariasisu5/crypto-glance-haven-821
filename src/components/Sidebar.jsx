@@ -11,7 +11,6 @@ const Sidebar = ({ sidebarOpen = false, onClose }) => {
     { icon: User, label: 'Credit Profile', path: '/credit' },
     { icon: TrendingUp, label: 'DeFi Insights', path: '/defi' },
     { icon: Zap, label: 'DePIN Finance', path: '/depin' },
-    { icon: Star, label: 'Favorites', path: '/favorites' },
   ];
 
   return (

@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Shield, TrendingUp, Zap, Users, DollarSign, Activity, ChevronRight, Sparkles, Lock, Globe, Coins } from 'lucide-react';
+import { ArrowRight, Shield, TrendingUp, Zap, Users, DollarSign, Activity, ChevronRight, Lock, Globe, Coins } from 'lucide-react';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { motion } from 'framer-motion';
 import heroImage from '@/assets/hero-defi.jpg';
@@ -112,18 +112,22 @@ const Landing = () => {
     <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Navigation */}
       <nav className="border-b border-border/40 backdrop-blur-xl fixed w-full z-50 bg-background/80">
-        <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center">
+        <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-wrap justify-between items-center gap-2">
           <div className="flex items-center space-x-2">
-            <img src="/moonfi-logo.svg" alt="MoonCreditFi logo" className="w-7 h-7 sm:w-8 sm:h-8 rounded-md object-cover" />
-            <span className="text-lg sm:text-xl font-bold mooncreditfi-glow">MoonCreditFi</span>
+            <img src="/logo.png" alt="MoonCreditFi logo" className="w-6 h-6 sm:w-8 sm:h-8 rounded-md object-cover" onError={(e) => { e.currentTarget.src = '/moonfi-logo.svg'; }} />
           </div>
-          <Button 
-            size="sm" 
-            className="btn-mooncreditfi text-sm px-4"
-            onClick={() => navigate('/dashboard')}
-          >
-            Launch App
-          </Button>
+          <div className="flex items-center gap-2">
+            <button aria-label="Launch app" onClick={() => navigate('/dashboard')} className="inline-flex items-center justify-center sm:hidden p-2 rounded-md bg-primary/10 text-white">
+              <ArrowRight className="h-4 w-4" />
+            </button>
+            <Button 
+              size="sm" 
+              className="hidden sm:inline-flex btn-mooncreditfi text-sm px-4"
+              onClick={() => navigate('/dashboard')}
+            >
+              Launch App
+            </Button>
+          </div>
         </div>
       </nav>
 
@@ -131,12 +135,13 @@ const Landing = () => {
       <section className="relative pt-20 sm:pt-24 pb-12 sm:pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-[90vh] flex items-center">
         {/* Animated Background */}
         <div className="absolute inset-0 z-0">
-          <img 
-            src={heroImage} 
-            alt="DeFi Background" 
-            className="w-full h-full object-cover opacity-15"
+          <img
+            src={heroImage}
+            alt="Hero background"
+            className="w-full h-full object-cover opacity-100"
+            onError={(e) => { e.currentTarget.src = '/placeholder.svg'; }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-background"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/30 to-black/60"></div>
           {/* Animated orbs */}
           <div className="absolute top-1/4 left-1/4 w-64 h-64 sm:w-96 sm:h-96 bg-primary/20 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute bottom-1/4 right-1/4 w-48 h-48 sm:w-72 sm:h-72 bg-accent/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -148,25 +153,19 @@ const Landing = () => {
           animate="visible"
           className="container mx-auto text-center max-w-5xl relative z-10"
         >
-          <motion.div variants={itemVariants}>
-            <Badge className="mb-4 sm:mb-6 bg-primary/10 text-primary border-primary/30 px-3 py-1">
-              <Sparkles className="w-3 h-3 mr-1" />
-              Built on Creditcoin Testnet
-            </Badge>
-          </motion.div>
 
           <motion.h1 
             variants={itemVariants}
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold mb-4 sm:mb-6 leading-tight tracking-tight"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-white mb-4 sm:mb-6 leading-tight tracking-tight"
           >
             <span className="mooncreditfi-glow">Decentralized Credit</span>
             <br />
-            <span className="text-muted-foreground">Made Simple</span>
+            <span className="text-white">Made Simple</span>
           </motion.h1>
 
           <motion.p 
             variants={itemVariants}
-            className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-2xl mx-auto px-4"
+            className="text-sm sm:text-base md:text-lg lg:text-xl text-white font-semibold mb-6 sm:mb-8 max-w-2xl mx-auto px-4"
           >
             Transparent on-chain credit, competitive DeFi lending, and real-world infrastructure financing. 
             Build your credit profile and unlock better rates today.
@@ -507,7 +506,7 @@ const Landing = () => {
                     <p className="text-xs sm:text-sm text-muted-foreground">{testimonial.role}</p>
                   </div>
                 </div>
-                <p className="text-muted-foreground italic text-sm sm:text-base">"{testimonial.text}"</p>
+                <p className="text-muted-foreground italic text-sm sm:text-base">&quot;{testimonial.text}&quot;</p>
               </div>
             ))}
           </div>
@@ -586,7 +585,7 @@ const Landing = () => {
         <div className="container mx-auto px-4 sm:px-6">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <div className="flex items-center space-x-2">
-              <img src="/moonfi-logo.svg" alt="MoonCreditFi logo" className="w-5 h-5 sm:w-6 sm:h-6 rounded-sm object-cover" />
+              <img src="/logo.png" alt="MoonCreditFi logo" className="w-5 h-5 sm:w-6 sm:h-6 rounded-sm object-cover" onError={(e) => { e.currentTarget.src = '/moonfi-logo.svg'; }} />
               <span className="font-semibold text-sm sm:text-base">MoonCreditFi</span>
             </div>
             <div className="flex gap-4 sm:gap-6 text-xs sm:text-sm text-muted-foreground">

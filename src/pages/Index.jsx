@@ -107,7 +107,7 @@ const Index = () => {
     const saved = localStorage.getItem('cryptoFavorites');
     return saved ? JSON.parse(saved) : [];
   });
-  const { balance, isConnected, account } = useWalletContext();
+  const { isConnected, account } = useWalletContext();
   const address = account;
   
   const { data: blockNumber } = useBlockNumber({ watch: true });
@@ -168,7 +168,7 @@ const Index = () => {
         errors: { lenderError, yieldError, creditError, borrowerError }
       });
     }
-  }, [lenderInfo, yieldData, creditProfile, poolStats, borrowerInfo, address, isConnected]);
+  }, [lenderInfo, yieldData, creditProfile, poolStats, borrowerInfo, address, isConnected, lenderError, yieldError, creditError, borrowerError]);
 
   // Refetch on new blocks
   useEffect(() => {
@@ -179,7 +179,7 @@ const Index = () => {
       refetchPool?.();
       refetchBorrower?.();
     }
-  }, [blockNumber, isConnected]);
+  }, [blockNumber, isConnected, refetchBorrower, refetchCredit, refetchLenderInfo, refetchPool, refetchYield]);
 
   // Parse values with safe defaults
   const depositedBalance = lenderInfo?.[0] ? formatEther(lenderInfo[0]) : '0';
@@ -256,28 +256,62 @@ const Index = () => {
     };
     
     const fetchCreditcoinPrices = async () => {
-      try {
-        // Fetch Creditcoin price history
-        const res = await axios.get('https://api.coingecko.com/api/v3/coins/creditcoin/market_chart', { params: { vs_currency: 'usd', days: 30 } });
-        if (!mounted) return;
-        const prices = res.data.prices.map(([ts, price]) => ({ date: new Date(ts).toISOString().slice(0,10), price }));
-        setCreditcoinHistory(prices.slice(-30));
-      } catch (e) {
-        console.warn('Failed to fetch Creditcoin price history, using mock data', e);
+        // determine coin id from fetched cryptos list to avoid hard-coded missing ids
+        const coinEntry = cryptos?.find(c => c.symbol === 'CTC' || c.id === 'creditcoin');
+        if (!coinEntry) {
+          console.warn('Creditcoin not found in CoinGecko markets list; using mock data');
+          setCreditcoinHistory(fallbackPriceHistory);
+          return;
+        }
+        const coinId = coinEntry.id;
+        const baseUrl = `https://api.coingecko.com/api/v3/coins/${coinId}/market_chart`;
+        const maxRetries = 3;
+        let attempt = 0;
+      const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
+
+      while (attempt < maxRetries) {
+        try {
+          const res = await axios.get(baseUrl, { params: { vs_currency: 'usd', days: 30 } });
+          if (!mounted) return;
+          const prices = res.data.prices.map(([ts, price]) => ({ date: new Date(ts).toISOString().slice(0,10), price }));
+          setCreditcoinHistory(prices.slice(-30));
+          return;
+        } catch (err) {
+          const status = err?.response?.status;
+          // If coin id is invalid (404), no point retrying
+          if (status === 404) {
+            console.warn(`CoinGecko returned 404 for ${coinEntry?.id || 'creditcoin'}; using mock data.`);
+            setCreditcoinHistory(fallbackPriceHistory);
+            return;
+          }
+          // If rate limited (429) or network/CORS issues, retry with backoff
+          attempt += 1;
+          console.warn(`Creditcoin price fetch attempt ${attempt} failed (status: ${status}).`);
+
+          if (attempt >= maxRetries) {
+            console.warn('Failed to fetch Creditcoin price history after retries, using mock data', err);
+            setCreditcoinHistory(fallbackPriceHistory);
+            return;
+          }
+
+          // exponential backoff: 500ms * 2^(attempt-1)
+          const backoff = 500 * Math.pow(2, attempt - 1);
+          await sleep(backoff);
+        }
       }
     };
     
     fetchPrices();
     fetchCreditcoinPrices();
     return () => { mounted = false; };
-  }, []);
+  }, [cryptos]);
 
   if (isLoading) return <div className="text-center mt-8 mooncreditfi-glow">Loading...</div>;
   if (isError) return <div className="text-center mt-8 mooncreditfi-glow text-destructive">Error: Unable to fetch crypto data</div>;
 
   // Get Creditcoin data
   const creditcoin = cryptos?.find(crypto => crypto.id === 'creditcoin' || crypto.symbol === 'CTC');
-  const bitcoin = cryptos?.find(crypto => crypto.id === 'bitcoin');
+  // eslint-disable-next-line no-unused-vars
   const ethereum = cryptos?.find(crypto => crypto.id === 'ethereum');
 
   const containerVariants = {
@@ -419,7 +453,7 @@ const Index = () => {
               </CardHeader>
               <CardContent className="p-2 sm:p-4 md:p-6 pt-0">
                 <div className="space-y-2 sm:space-y-3 md:space-y-4">
-                  {cryptos?.slice(0, 5).map((crypto, index) => (
+                  {cryptos?.slice(0, 5).map((crypto) => (
                     <div key={crypto.id} className="flex items-center justify-between p-2 sm:p-3 bg-muted/50 rounded-lg">
                       <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
                         <span className="text-xs sm:text-sm font-mono text-muted-foreground">#{crypto.rank}</span>

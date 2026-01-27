@@ -101,14 +101,13 @@ const Auth = () => {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
       <div className="w-full max-w-2xl">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-wrap items-center justify-between mb-6 gap-2">
           <Button variant="ghost" onClick={() => navigate('/') }>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Home
           </Button>
-          <div className="flex items-center gap-3">
-            <img src="/moonfi-logo.svg" alt="MoonCreditFi" className="w-8 h-8 rounded-sm" />
-            <span className="font-semibold">MoonCreditFi</span>
+          <div className="flex items-center gap-3" aria-label="MoonCreditFi">
+            <img src="/logo.png" alt="MoonCreditFi" className="w-6 sm:w-8 h-6 sm:h-8 rounded-sm" onError={(e) => { e.currentTarget.src = '/moonfi-logo.svg'; }} />
           </div>
         </div>
 

@@ -5,7 +5,7 @@ import NotificationButton from './NotificationButton';
 const Navbar = ({ onToggleSidebar }) => {
   return (
     <nav className="sticky top-0 z-50 bg-background border-b border-border p-4">
-      <div className="container mx-auto flex justify-between items-center">
+      <div className="container mx-auto flex flex-wrap justify-between items-center gap-2">
         <div className="flex items-center space-x-3">
           {/* hamburger - visible on mobile only */}
           <button
@@ -18,14 +18,14 @@ const Navbar = ({ onToggleSidebar }) => {
             </svg>
           </button>
 
-          <NavLink to="/dashboard" className="flex items-center space-x-3">
+          <NavLink to="/dashboard" className="flex items-center space-x-3" aria-label="MoonCreditFi">
             <img
-              src="/moonfi-logo.svg"
+              src="/logo.png"
               alt="MoonCreditFi logo"
-              className="w-8 h-8 rounded-md object-cover"
+              className="w-6 h-6 sm:w-8 sm:h-8 rounded-md object-cover"
               aria-hidden={false}
+              onError={(e) => { e.currentTarget.src = '/moonfi-logo.svg'; }}
             />
-            <span className="text-xl font-bold mooncreditfi-glow">MoonCreditFi</span>
           </NavLink>
         </div>
 

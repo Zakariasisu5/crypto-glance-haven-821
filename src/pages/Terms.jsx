@@ -11,14 +11,13 @@ const Terms = () => {
     <div className="min-h-screen bg-background">
       {/* Navigation */}
       <nav className="border-b border-border/40 backdrop-blur-xl sticky top-0 z-50 bg-background/80">
-        <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center">
+        <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-wrap justify-between items-center gap-2">
           <Button variant="ghost" onClick={() => navigate('/')} className="gap-2">
             <ArrowLeft className="h-4 w-4" />
             Back
           </Button>
-          <div className="flex items-center space-x-2">
-            <img src="/moonfi-logo.svg" alt="MoonCreditFi logo" className="w-7 h-7 sm:w-8 sm:h-8 rounded-md object-cover" />
-            <span className="text-lg sm:text-xl font-bold mooncreditfi-glow">MoonCreditFi</span>
+          <div className="flex items-center space-x-2" aria-label="MoonCreditFi">
+            <img src="/logo.png" alt="MoonCreditFi logo" className="w-6 h-6 sm:w-8 sm:h-8 rounded-md object-cover" onError={(e) => { e.currentTarget.src = '/moonfi-logo.svg'; }} />
           </div>
         </div>
       </nav>
