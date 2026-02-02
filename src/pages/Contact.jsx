@@ -20,7 +20,10 @@ const Contact = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    toast.success('Message sent successfully! We will get back to you soon.');
+    // Create mailto link with form data
+    const mailtoLink = `mailto:zakariasisu5@gmail.com?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`)}`;
+    window.location.href = mailtoLink;
+    toast.success('Opening your email client to send the message.');
     setFormData({ name: '', email: '', subject: '', message: '' });
   };
 
@@ -40,7 +43,7 @@ const Contact = () => {
             Back
           </Button>
           <div className="flex items-center space-x-2" aria-label="MoonCreditFi">
-            <img src="/logo.png" alt="MoonCreditFi logo" className="w-6 h-6 sm:w-8 sm:h-8 rounded-md object-cover" onError={(e) => { e.currentTarget.src = '/moonfi-logo.svg'; }} />
+            <img src="/logo.png" alt="MoonCreditFi logo" className="w-10 h-10 sm:w-12 sm:h-12 rounded-md object-cover" onError={(e) => { e.currentTarget.src = '/moonfi-logo.svg'; }} />
           </div>
         </div>
       </nav>

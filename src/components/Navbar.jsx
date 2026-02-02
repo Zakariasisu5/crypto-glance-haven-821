@@ -22,7 +22,7 @@ const Navbar = ({ onToggleSidebar }) => {
             <img
               src="/logo.png"
               alt="MoonCreditFi logo"
-              className="w-6 h-6 sm:w-8 sm:h-8 rounded-md object-cover"
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded-md object-cover"
               aria-hidden={false}
               onError={(e) => { e.currentTarget.src = '/moonfi-logo.svg'; }}
             />
