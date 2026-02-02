@@ -80,20 +80,11 @@ const Landing = () => {
       <nav className="border-b border-border/40 backdrop-blur-xl fixed w-full z-50 bg-background/80">
         <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-wrap justify-between items-center gap-2">
           <div className="flex items-center space-x-2">
-            <img src="/logo.png" alt="MoonCreditFi logo" className="w-6 h-6 sm:w-8 sm:h-8 rounded-md object-cover" onError={(e) => { e.currentTarget.src = '/moonfi-logo.svg'; }} />
+            <img src="/logo.png" alt="MoonCreditFi logo" className="w-10 h-10 sm:w-12 sm:h-12 rounded-md object-cover" onError={(e) => { e.currentTarget.src = '/moonfi-logo.svg'; }} />
             <span className="font-bold text-sm sm:text-base">MoonCreditFi</span>
           </div>
           <div className="flex items-center gap-2">
-            <Button 
-              variant="ghost"
-              size="sm"
-              className="hidden sm:inline-flex text-xs"
-              onClick={() => window.open('https://github.com', '_blank')}
-            >
-              <Github className="h-4 w-4 mr-1" />
-              GitHub
-            </Button>
-            <Button 
+            <Button
               size="sm" 
               className="btn-mooncreditfi text-xs sm:text-sm px-3 sm:px-4"
               onClick={() => navigate('/dashboard')}
@@ -161,15 +152,6 @@ const Landing = () => {
             >
               Launch App
               <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
-            </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className="text-base sm:text-lg px-6 sm:px-8 h-12 sm:h-14 w-full sm:w-auto border-white/30 text-white hover:bg-white/10" 
-              onClick={() => window.open('https://github.com', '_blank')}
-            >
-              <Github className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-              View Source
             </Button>
           </motion.div>
 
@@ -552,7 +534,7 @@ const Landing = () => {
               <p className="text-lg sm:text-xl md:text-2xl font-medium mb-6 sm:mb-8 max-w-2xl mx-auto mooncreditfi-glow">
                 Powered by Creditcoin
               </p>
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+              <div className="flex justify-center">
                 <Button 
                   size="lg" 
                   className="btn-mooncreditfi text-base sm:text-lg px-8 sm:px-10 h-12 sm:h-14"
@@ -560,15 +542,6 @@ const Landing = () => {
                 >
                   Launch App
                   <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
-                </Button>
-                <Button 
-                  size="lg" 
-                  variant="outline"
-                  className="text-base sm:text-lg px-8 sm:px-10 h-12 sm:h-14 border-primary/50"
-                  onClick={() => window.open('https://github.com', '_blank')}
-                >
-                  <Github className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                  View on GitHub
                 </Button>
               </div>
             </div>
@@ -583,7 +556,7 @@ const Landing = () => {
             {/* Brand */}
             <div>
               <div className="flex items-center space-x-2 mb-3">
-                <img src="/logo.png" alt="MoonCreditFi logo" className="w-6 h-6 rounded-sm object-cover" onError={(e) => { e.currentTarget.src = '/moonfi-logo.svg'; }} />
+                <img src="/logo.png" alt="MoonCreditFi logo" className="w-10 h-10 sm:w-12 sm:h-12 rounded-md object-cover" onError={(e) => { e.currentTarget.src = '/moonfi-logo.svg'; }} />
                 <span className="font-bold">MoonCreditFi</span>
               </div>
               <p className="text-xs sm:text-sm text-muted-foreground">
