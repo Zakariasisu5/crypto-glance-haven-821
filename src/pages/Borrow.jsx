@@ -207,8 +207,11 @@ const Borrow = () => {
 
     setIsLoading(true);
     try {
-      // Use raw Wei value directly to avoid precision issues
-      const amountToRepay = activeLoanRaw.totalOwed;
+      // Add 1% buffer to account for interest accrued during transaction confirmation
+      // The contract will refund any excess amount
+      const baseAmount = activeLoanRaw.totalOwed;
+      const buffer = baseAmount / 100n; // 1% buffer
+      const amountToRepay = baseAmount + buffer;
 
       toast.info('Please confirm the transaction in your wallet...');
 
