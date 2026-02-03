@@ -20,6 +20,7 @@ const Borrow = () => {
   const { addNotification } = useNotifications();
   const [borrowAmount, setBorrowAmount] = useState('');
   const [activeLoan, setActiveLoan] = useState(null);
+  const [activeLoanRaw, setActiveLoanRaw] = useState(null); // Store raw Wei values
   const [creditScore, setCreditScore] = useState(0);
   const [maxBorrowLimit, setMaxBorrowLimit] = useState('0');
   const [loanHistory, setLoanHistory] = useState([]);
@@ -92,6 +93,12 @@ const Borrow = () => {
     if (borrowerLoan) {
       const [amount, interestRate, isActive, totalOwed] = borrowerLoan;
       if (isActive) {
+        // Store raw Wei values for transactions
+        setActiveLoanRaw({
+          amount: amount,
+          totalOwed: totalOwed,
+        });
+        // Store formatted values for display
         setActiveLoan({
           amount: formatEther(amount),
           totalOwed: formatEther(totalOwed),
@@ -100,6 +107,7 @@ const Borrow = () => {
         });
       } else {
         setActiveLoan(null);
+        setActiveLoanRaw(null);
       }
     }
   }, [borrowerLoan]);
@@ -192,14 +200,15 @@ const Borrow = () => {
       return;
     }
 
-    if (!activeLoan) {
+    if (!activeLoan || !activeLoanRaw) {
       toast.error('No active loan to repay');
       return;
     }
 
     setIsLoading(true);
     try {
-      const amountToRepay = parseEther(activeLoan.totalOwed);
+      // Use raw Wei value directly to avoid precision issues
+      const amountToRepay = activeLoanRaw.totalOwed;
 
       toast.info('Please confirm the transaction in your wallet...');
 
