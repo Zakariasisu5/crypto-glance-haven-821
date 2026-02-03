@@ -70,8 +70,8 @@ const Landing = () => {
   const roadmapPhases = [
     { phase: 1, title: 'Credit Profiles & Lending', status: 'Done', description: 'Smart contracts for credit scoring and lending pools' },
     { phase: 2, title: 'DePIN Funding Module', status: 'Done', description: 'Infrastructure funding with real-yield returns' },
-    { phase: 3, title: 'Full Creditcoin Testnet Deployment', status: 'Next', description: 'Complete integration with Creditcoin testnet' },
-    { phase: 4, title: 'Mainnet + Partnerships', status: 'Upcoming', description: 'Production launch and strategic partnerships' }
+    { phase: 3, title: 'Full Creditcoin Testnet Deployment', status: 'Done', description: 'Complete integration with Creditcoin testnet' },
+    { phase: 4, title: 'Mainnet + Partnerships', status: 'Next', description: 'Production launch and strategic partnerships' }
   ];
 
   return (
