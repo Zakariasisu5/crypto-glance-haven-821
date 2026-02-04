@@ -14,7 +14,7 @@ import { toast } from 'sonner';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { parseEther, formatEther } from 'viem';
 import { useWriteContract, useWaitForTransactionReceipt, useAccount, useReadContract, useBlockNumber } from 'wagmi';
-import { Zap, Sun, Wifi, Car, DollarSign, TrendingUp, Users, Loader2, Shield, Target, Award, ExternalLink, Search, Filter, X, LogOut } from 'lucide-react';
+import { Zap, Sun, Wifi, Car, DollarSign, TrendingUp, Users, Loader2, Shield, Award, ExternalLink, Search, Filter, X } from 'lucide-react';
 import { DEPIN_FINANCE_ADDRESS, DEPIN_FINANCE_ABI } from '@/hooks/useContract';
 
 const DePINFinance = () => {
@@ -94,28 +94,6 @@ const DePINFinance = () => {
     'Other': Zap
   };
 
-  const benefits = [
-    {
-      icon: Shield,
-      title: 'Real Ownership',
-      description: 'Direct ownership shares recorded on blockchain'
-    },
-    {
-      icon: Target,
-      title: 'Transparent Impact',
-      description: 'Track project performance and funding in real-time'
-    },
-    {
-      icon: DollarSign,
-      title: 'Profit Sharing',
-      description: 'Earn yield based on actual project revenue'
-    },
-    {
-      icon: Award,
-      title: 'Proof-of-Impact NFT',
-      description: 'Receive NFT certification for every contribution'
-    }
-  ];
 
   // Mock projects data for when database is not available
   const mockProjects = [
@@ -440,31 +418,6 @@ const DePINFinance = () => {
         </Badge>
       </div>
 
-      {/* Why Fund DePIN Section */}
-      <Card className="card-glow border-primary/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Zap className="h-5 w-5 text-primary" />
-            Why Fund DePIN Projects?
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {benefits.map((benefit, index) => {
-              const Icon = benefit.icon;
-              return (
-                <div key={index} className="flex flex-col items-center text-center p-4 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
-                  <div className="p-3 rounded-full bg-primary/10 mb-3">
-                    <Icon className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="font-semibold mb-2">{benefit.title}</h3>
-                  <p className="text-sm text-muted-foreground">{benefit.description}</p>
-                </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
 
       {loading ? (
         <div className="flex items-center justify-center h-64">
