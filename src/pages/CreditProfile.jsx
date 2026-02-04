@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import StatsCard from '@/components/StatsCard';
 import { User, CreditCard, TrendingUp, DollarSign } from 'lucide-react';
 import { useWalletContext } from '@/contexts/WalletContext';
@@ -12,8 +11,14 @@ import { useBlockNumber, useReadContract } from 'wagmi';
 
 const CreditProfile = () => {
   const { account, isConnected } = useWalletContext();
-  const [creditProfile, setCreditProfile] = useState({ creditScore: 0, borrowingHistory: [], totalBorrowed: 0, totalRepaid: 0, availableCredit: 0, utilizedCredit: 0 });
-  const creditScoreHistory = [];
+  const [creditProfile, setCreditProfile] = useState({ 
+    creditScore: 0, 
+    borrowingHistory: [], 
+    totalBorrowed: 0, 
+    totalRepaid: 0, 
+    availableCredit: 0, 
+    utilizedCredit: 0 
+  });
 
   // Read profile data
   const { data: profileData, refetch: refetchProfile } = useReadContract({
@@ -83,6 +88,10 @@ const CreditProfile = () => {
     }
   };
 
+  const utilizationRate = creditProfile.availableCredit + creditProfile.utilizedCredit > 0
+    ? (creditProfile.utilizedCredit / (creditProfile.availableCredit + creditProfile.utilizedCredit)) * 100
+    : 0;
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold mooncreditfi-glow">Credit Profile</h1>
@@ -91,26 +100,26 @@ const CreditProfile = () => {
         <StatsCard
           title="Credit Score"
           value={creditProfile.creditScore}
-          description="Excellent rating"
+          description={creditProfile.creditScore >= 700 ? 'Excellent rating' : creditProfile.creditScore >= 600 ? 'Good rating' : 'Building credit'}
           icon={TrendingUp}
           trend={2.8}
           className="border-primary/20"
         />
         <StatsCard
           title="Available Credit"
-          value={`$${creditProfile.availableCredit.toLocaleString()}`}
+          value={`${creditProfile.availableCredit.toFixed(4)} CTC`}
           description="Ready to borrow"
           icon={DollarSign}
         />
         <StatsCard
           title="Utilized Credit"
-          value={`$${creditProfile.utilizedCredit.toLocaleString()}`}
+          value={`${creditProfile.utilizedCredit.toFixed(4)} CTC`}
           description="Currently borrowed"
           icon={CreditCard}
         />
         <StatsCard
           title="Utilization Rate"
-          value={`${((creditProfile.utilizedCredit / (creditProfile.availableCredit + creditProfile.utilizedCredit)) * 100).toFixed(1)}%`}
+          value={`${utilizationRate.toFixed(1)}%`}
           description="Credit utilization"
           icon={User}
         />
@@ -119,41 +128,15 @@ const CreditProfile = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="card-glow">
           <CardHeader>
-            <CardTitle>Credit Score Trend</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={creditScoreHistory}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis domain={['dataMin - 10', 'dataMax + 10']} />
-                <Tooltip />
-                <Line 
-                  type="monotone" 
-                  dataKey="score" 
-                  stroke="hsl(var(--primary))" 
-                  strokeWidth={2}
-                  dot={{ fill: 'hsl(var(--primary))', strokeWidth: 2, r: 4 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        <Card className="card-glow">
-          <CardHeader>
             <CardTitle>Credit Utilization</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span>Used: ${creditProfile.utilizedCredit.toLocaleString()}</span>
-                <span>Available: ${creditProfile.availableCredit.toLocaleString()}</span>
+                <span>Used: {creditProfile.utilizedCredit.toFixed(4)} CTC</span>
+                <span>Available: {creditProfile.availableCredit.toFixed(4)} CTC</span>
               </div>
-              <Progress 
-                value={(creditProfile.utilizedCredit / (creditProfile.availableCredit + creditProfile.utilizedCredit)) * 100} 
-                className="h-3"
-              />
+              <Progress value={utilizationRate} className="h-3" />
             </div>
             
             <div className="space-y-3">
@@ -161,8 +144,38 @@ const CreditProfile = () => {
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>• Keep utilization below 30% for optimal score</li>
                 <li>• Pay loans on time to improve rating</li>
-                <li>• Diversify borrowing across different assets</li>
+                <li>• Borrow and repay consistently to build history</li>
               </ul>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="card-glow">
+          <CardHeader>
+            <CardTitle>Score Breakdown</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg border border-primary/20">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Your Score</p>
+                <p className="text-4xl font-bold text-primary">{creditProfile.creditScore}</p>
+              </div>
+              <div className="text-right">
+                <Badge variant={creditProfile.creditScore >= 700 ? 'default' : 'secondary'}>
+                  {creditProfile.creditScore >= 750 ? 'Excellent' : creditProfile.creditScore >= 700 ? 'Good' : creditProfile.creditScore >= 600 ? 'Fair' : 'Building'}
+                </Badge>
+                <p className="text-xs text-muted-foreground mt-2">Based on {creditProfile.borrowingHistory.length} loans</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 bg-muted/50 rounded-lg">
+                <p className="text-xs text-muted-foreground">Total Borrowed</p>
+                <p className="font-bold">{creditProfile.totalBorrowed.toFixed(4)} CTC</p>
+              </div>
+              <div className="p-3 bg-muted/50 rounded-lg">
+                <p className="text-xs text-muted-foreground">Total Repaid</p>
+                <p className="font-bold text-green-500">{creditProfile.totalRepaid.toFixed(4)} CTC</p>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -173,25 +186,33 @@ const CreditProfile = () => {
           <CardTitle>Borrowing History</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {creditProfile.borrowingHistory.map((loan, index) => (
-              <div key={index} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                <div className="flex items-center space-x-4">
-                  <Badge className={getStatusColor(loan.status)}>
-                    {loan.status}
-                  </Badge>
-                  <div>
-                    <p className="font-medium">${loan.amount.toLocaleString()}</p>
-                    <p className="text-sm text-muted-foreground">{loan.date}</p>
+          {creditProfile.borrowingHistory.length > 0 ? (
+            <div className="space-y-4">
+              {creditProfile.borrowingHistory.map((loan, index) => (
+                <div key={index} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                  <div className="flex items-center space-x-4">
+                    <Badge className={getStatusColor(loan.status)}>
+                      {loan.status}
+                    </Badge>
+                    <div>
+                      <p className="font-medium">{loan.amount.toFixed(4)} CTC</p>
+                      <p className="text-sm text-muted-foreground">{loan.date}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium">{loan.rate}% APR</p>
+                    <p className="text-sm text-muted-foreground">Interest Rate</p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="font-medium">{loan.rate}% APR</p>
-                  <p className="text-sm text-muted-foreground">Interest Rate</p>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              <CreditCard className="h-12 w-12 mx-auto mb-3 opacity-50" />
+              <p>No borrowing history yet</p>
+              <p className="text-sm">Borrow and repay to build your credit score</p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
