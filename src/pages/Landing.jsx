@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Shield, TrendingUp, Zap, Users, CheckCircle, Lock, Globe, Coins, Sun, Wifi, Car, FileText, Github, ExternalLink, Award, Target, Rocket, ChevronRight } from 'lucide-react';
+import { ArrowRight, Shield, TrendingUp, Zap, Users, CheckCircle, Lock, Globe, Coins, Sun, Wifi, Car, FileText, Github, ExternalLink, Award, Target, Rocket, ChevronRight, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 import heroImage from '@/assets/hero-defi.jpg';
 
@@ -569,7 +569,7 @@ const Landing = () => {
               <h4 className="font-semibold text-sm mb-3">Resources</h4>
               <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
                 <li><a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors flex items-center gap-1"><Github className="w-3 h-3" /> GitHub</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors flex items-center gap-1"><FileText className="w-3 h-3" /> Whitepaper</a></li>
+                <li><a href="#/whitepaper" className="hover:text-primary transition-colors flex items-center gap-1"><Download className="w-3 h-3" /> Whitepaper (PDF)</a></li>
                 <li><a href="#" className="hover:text-primary transition-colors flex items-center gap-1"><ExternalLink className="w-3 h-3" /> Smart Contracts</a></li>
               </ul>
             </div>

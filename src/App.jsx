@@ -17,6 +17,7 @@ import About from "./pages/About";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Contact from "./pages/Contact";
+import Whitepaper from "./pages/Whitepaper";
 import DePINFundingComponent from "./components/DePINFundingComponent";
 
 const queryClient = new QueryClient();
@@ -39,6 +40,7 @@ const App = () => {
                   <Route path="/terms" element={<Terms />} />
                   <Route path="/privacy" element={<Privacy />} />
                   <Route path="/contact" element={<Contact />} />
+                  <Route path="/whitepaper" element={<Whitepaper />} />
                   <Route
                     path="/*"
                     element={
