@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Shield, TrendingUp, Zap, Users, CheckCircle, Lock, Globe, Coins, Sun, Wifi, Car, FileText, Github, ExternalLink, Award, Target, Rocket, ChevronRight, Download } from 'lucide-react';
+import { ArrowRight, Shield, TrendingUp, Zap, Users, CheckCircle, Lock, Globe, Coins, Sun, Wifi, Car, FileText, Github, ExternalLink, Award, Target, Rocket, ChevronRight, Download, Play } from 'lucide-react';
 import { motion } from 'framer-motion';
 import heroImage from '@/assets/hero-defi.jpg';
 
@@ -152,6 +152,15 @@ const Landing = () => {
             >
               Launch App
               <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
+            </Button>
+            <Button 
+              size="lg" 
+              variant="outline"
+              className="text-base sm:text-lg px-6 sm:px-8 h-12 sm:h-14 w-full sm:w-auto border-white/30 text-white hover:bg-white/10" 
+              onClick={() => navigate('/demo')}
+            >
+              <Play className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+              Watch Demo
             </Button>
           </motion.div>
 
@@ -568,8 +577,9 @@ const Landing = () => {
             <div>
               <h4 className="font-semibold text-sm mb-3">Resources</h4>
               <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
-                <li><a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors flex items-center gap-1"><Github className="w-3 h-3" /> GitHub</a></li>
+                <li><a href="#/demo" className="hover:text-primary transition-colors flex items-center gap-1"><Play className="w-3 h-3" /> Product Demo</a></li>
                 <li><a href="#/whitepaper" className="hover:text-primary transition-colors flex items-center gap-1"><Download className="w-3 h-3" /> Whitepaper (PDF)</a></li>
+                <li><a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors flex items-center gap-1"><Github className="w-3 h-3" /> GitHub</a></li>
                 <li><a href="#" className="hover:text-primary transition-colors flex items-center gap-1"><ExternalLink className="w-3 h-3" /> Smart Contracts</a></li>
               </ul>
             </div>
