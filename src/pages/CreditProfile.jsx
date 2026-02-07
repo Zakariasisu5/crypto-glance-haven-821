@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import StatsCard from '@/components/StatsCard';
+import AICreditAnalysis from '@/components/AICreditAnalysis';
 import { User, CreditCard, TrendingUp, DollarSign } from 'lucide-react';
 import { useWalletContext } from '@/contexts/WalletContext';
 import { CREDIT_PROFILE_ADDRESS, CREDIT_PROFILE_ABI } from '@/hooks/useContract';
@@ -19,6 +20,7 @@ const CreditProfile = () => {
     availableCredit: 0, 
     utilizedCredit: 0 
   });
+  const [aiAnalysis, setAiAnalysis] = useState(null);
 
   // Read profile data
   const { data: profileData, refetch: refetchProfile } = useReadContract({
@@ -92,6 +94,48 @@ const CreditProfile = () => {
     ? (creditProfile.utilizedCredit / (creditProfile.availableCredit + creditProfile.utilizedCredit)) * 100
     : 0;
 
+  // Prepare wallet data for AI analysis
+  const walletDataForAI = useMemo(() => {
+    if (!account) return null;
+    
+    const repaidLoans = creditProfile.borrowingHistory.filter(l => l.status === 'repaid').length;
+    const totalLoans = creditProfile.borrowingHistory.length;
+    const onTimeRate = totalLoans > 0 ? Math.round((repaidLoans / totalLoans) * 100) : 0;
+    
+    // Determine transaction frequency based on loan count
+    let transactionFrequency = 'low';
+    if (totalLoans >= 10) transactionFrequency = 'high';
+    else if (totalLoans >= 3) transactionFrequency = 'medium';
+    
+    // Determine activity consistency
+    let activityConsistency = 'consistent';
+    if (totalLoans === 0) activityConsistency = 'new user';
+    else if (creditProfile.utilizedCredit > creditProfile.availableCredit * 0.8) activityConsistency = 'high utilization';
+    
+    // Check for risk flags
+    const riskFlags = [];
+    if (utilizationRate > 80) riskFlags.push('High credit utilization');
+    if (creditProfile.creditScore < 500) riskFlags.push('Low credit score');
+    if (totalLoans > 0 && repaidLoans === 0) riskFlags.push('No repayment history');
+    
+    return {
+      walletAddress: account,
+      transactionFrequency,
+      transactionCount: totalLoans,
+      walletAge: Math.max(1, totalLoans * 2), // Estimate based on loan history
+      totalVolume: (creditProfile.totalBorrowed + creditProfile.totalRepaid) * 1000, // Convert to USD estimate
+      defiInteractions: totalLoans > 0,
+      repaidLoans,
+      totalLoans,
+      onTimeRate,
+      activityConsistency,
+      riskFlags,
+      currentCreditScore: creditProfile.creditScore,
+      totalBorrowed: creditProfile.totalBorrowed * 1000, // USD estimate
+      totalRepaid: creditProfile.totalRepaid * 1000, // USD estimate
+    };
+  }, [account, creditProfile, utilizationRate]);
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold mooncreditfi-glow">Credit Profile</h1>
@@ -124,6 +168,12 @@ const CreditProfile = () => {
           icon={User}
         />
       </div>
+
+      {/* AI Credit Analysis Section */}
+      <AICreditAnalysis 
+        walletData={walletDataForAI} 
+        onAnalysisComplete={setAiAnalysis}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="card-glow">

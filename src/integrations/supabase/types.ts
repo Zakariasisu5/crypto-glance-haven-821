@@ -10,99 +10,11 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "13.0.5"
+    PostgrestVersion: "14.1"
   }
   public: {
     Tables: {
-      depin_projects: {
-        Row: {
-          category: string
-          created_at: string
-          description: string
-          funding_current: number
-          funding_goal: number
-          funding_progress: number
-          id: string
-          image: string | null
-          name: string
-          roi: number | null
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          category: string
-          created_at?: string
-          description: string
-          funding_current?: number
-          funding_goal?: number
-          funding_progress?: number
-          id?: string
-          image?: string | null
-          name: string
-          roi?: number | null
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          category?: string
-          created_at?: string
-          description?: string
-          funding_current?: number
-          funding_goal?: number
-          funding_progress?: number
-          id?: string
-          image?: string | null
-          name?: string
-          roi?: number | null
-          status?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      user_contributions: {
-        Row: {
-          amount: number
-          created_at: string
-          id: string
-          nft_token_id: string | null
-          ownership_percentage: number
-          project_id: string
-          transaction_hash: string
-          updated_at: string
-          user_address: string
-        }
-        Insert: {
-          amount: number
-          created_at?: string
-          id?: string
-          nft_token_id?: string | null
-          ownership_percentage?: number
-          project_id: string
-          transaction_hash: string
-          updated_at?: string
-          user_address: string
-        }
-        Update: {
-          amount?: number
-          created_at?: string
-          id?: string
-          nft_token_id?: string | null
-          ownership_percentage?: number
-          project_id?: string
-          transaction_hash?: string
-          updated_at?: string
-          user_address?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_contributions_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "depin_projects"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
+      [_ in never]: never
     }
     Views: {
       [_ in never]: never
