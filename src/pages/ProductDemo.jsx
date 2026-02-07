@@ -5,6 +5,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import NarratedDemoPlayer from '@/components/NarratedDemoPlayer';
 import { 
   ChevronRight, 
   ChevronLeft, 
@@ -22,7 +24,9 @@ import {
   Globe,
   TrendingUp,
   AlertCircle,
-  Lightbulb
+  Lightbulb,
+  Brain,
+  Play
 } from 'lucide-react';
 
 const demoSections = [
@@ -69,6 +73,22 @@ const demoSections = [
     ],
     action: 'Scroll to features/solution section',
     keySignal: null
+  },
+  {
+    id: 'ai-engine',
+    title: 'AI Credit Risk Engine',
+    duration: '45 sec',
+    icon: Brain,
+    navTo: '/dashboard/credit',
+    navLabel: 'Show AI Analysis',
+    script: [
+      '"At the heart of MoonCreditFi is our AI Credit Risk Engine."',
+      '"It analyzes on-chain wallet behavior using machine learning, not static rules."',
+      '"The engine evaluates transaction patterns, repayment history, and DeFi interactions to generate transparent, explainable credit scores."',
+      '"This enables fair access to credit for underbanked users who lack traditional credit history."'
+    ],
+    action: 'Navigate to Credit Profile, trigger AI Analysis',
+    keySignal: '"AI-powered, transparent, explainable"'
   },
   {
     id: 'credit-profile',
@@ -158,7 +178,7 @@ const demoSections = [
     navLabel: null,
     script: [
       '"This is not a concept."',
-      '"We have deployed smart contracts, a working frontend, backend services, and a functional DePIN module running on testnet."'
+      '"We have deployed smart contracts, a working frontend, backend AI services, and a functional DePIN module running on testnet."'
     ],
     action: 'Pause, make eye contact with judges',
     keySignal: 'Emphasize: "not a concept"'
@@ -182,6 +202,7 @@ const demoSections = [
 const ProductDemo = () => {
   const navigate = useNavigate();
   const [currentSection, setCurrentSection] = useState(0);
+  const [activeTab, setActiveTab] = useState('script');
 
   const section = demoSections[currentSection];
   const Icon = section.icon;
@@ -217,6 +238,18 @@ const ProductDemo = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="h-8">
+                <TabsTrigger value="script" className="text-xs gap-1 px-3">
+                  <Mic className="h-3 w-3" />
+                  Script
+                </TabsTrigger>
+                <TabsTrigger value="narrated" className="text-xs gap-1 px-3">
+                  <Play className="h-3 w-3" />
+                  AI Voice
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
             <Badge variant="outline" className="gap-1">
               <Clock className="h-3 w-3" />
               {totalDuration}
@@ -229,6 +262,17 @@ const ProductDemo = () => {
       </header>
 
       <div className="container mx-auto px-4 py-6 pb-24">
+        {activeTab === 'narrated' ? (
+          <div className="max-w-2xl mx-auto">
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold mb-2">AI-Narrated Demo</h2>
+              <p className="text-muted-foreground">
+                Professional voice narration of the MoonCreditFi presentation
+              </p>
+            </div>
+            <NarratedDemoPlayer />
+          </div>
+        ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Section Navigator - Left Sidebar */}
           <div className="lg:col-span-3">
@@ -399,6 +443,7 @@ const ProductDemo = () => {
             </AnimatePresence>
           </div>
         </div>
+        )}
       </div>
 
       {/* Quick Nav Footer */}
