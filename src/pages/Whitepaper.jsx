@@ -368,6 +368,93 @@ const Whitepaper = () => {
           </div>
         </Section>
 
+        {/* AI Credit Risk Engine */}
+        <Section title="AI Credit Risk Engine" icon={Zap}>
+          <p className="text-muted-foreground leading-relaxed mb-6">
+            At the heart of MoonCreditFi is our AI-powered Credit Risk Engine, which provides transparent, explainable 
+            credit assessments by analyzing on-chain behavior using machine learning—not static rules.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <Card className="card-glow">
+              <CardContent className="p-6">
+                <h4 className="font-semibold text-lg mb-4 text-primary">How It Works</h4>
+                <ul className="space-y-3 text-sm text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
+                    Analyzes wallet transaction patterns and frequency
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
+                    Evaluates DeFi interaction history
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
+                    Tracks loan repayment behavior over time
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
+                    Detects risk flags (inactivity, large withdrawals)
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
+                    Generates explainable reasoning for all decisions
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="card-glow">
+              <CardContent className="p-6">
+                <h4 className="font-semibold text-lg mb-4 text-primary">Output Profile</h4>
+                <div className="space-y-4">
+                  <div className="p-3 bg-muted/30 rounded-lg">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-sm font-medium">Credit Score</span>
+                      <span className="text-primary font-bold">0–100</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">AI-computed behavioral score</p>
+                  </div>
+                  <div className="p-3 bg-muted/30 rounded-lg">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-sm font-medium">Risk Level</span>
+                      <span className="text-yellow-500 font-bold">Low / Medium / High</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Classification for lending decisions</p>
+                  </div>
+                  <div className="p-3 bg-muted/30 rounded-lg">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-sm font-medium">Loan Recommendation</span>
+                      <span className="text-green-500 font-bold">$50 – $5,000</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Microloan-focused amounts</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="bg-primary/10 rounded-xl p-6 border border-primary/20">
+            <h4 className="font-semibold mb-4">AI Reasoning Example</h4>
+            <div className="bg-background/50 rounded-lg p-4 font-mono text-xs">
+              <pre className="whitespace-pre-wrap text-muted-foreground">
+{`{
+  "credit_score": 72,
+  "risk_level": "Medium",
+  "loan_eligibility": "Eligible",
+  "recommended_loan_amount_usd": 500,
+  "ai_reasoning_summary": [
+    "Wallet has 8 months of consistent activity",
+    "3 successful loan repayments recorded",
+    "Active DeFi participation (positive signal)",
+    "No risk flags detected"
+  ]
+}`}
+              </pre>
+            </div>
+          </div>
+        </Section>
+
         {/* Security */}
         <Section title="Security & Audits" icon={Shield}>
           <p className="text-muted-foreground leading-relaxed mb-6">
@@ -382,6 +469,8 @@ const Whitepaper = () => {
             <SecurityItem title="Upgradeable Proxies" description="UUPS proxy pattern for secure contract upgrades" />
             <SecurityItem title="Rate Limiting" description="Built-in rate limits to prevent manipulation" />
             <SecurityItem title="Oracle Security" description="Multiple price feed sources with fallback mechanisms" />
+            <SecurityItem title="AI Model Security" description="Sandboxed AI inference with rate limiting and validation" />
+            <SecurityItem title="Data Privacy" description="On-chain analysis only—no personal data collection" />
           </div>
         </Section>
 
