@@ -50,8 +50,51 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders });
   }
 
+  if (req.method !== 'POST') {
+    return new Response(
+      JSON.stringify({ error: 'Method not allowed. Use POST.' }),
+      {
+        status: 405,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
+  }
+
   try {
-    const { walletData } = await req.json();
+    const rawBody = await req.text();
+    if (!rawBody?.trim()) {
+      return new Response(
+        JSON.stringify({ error: 'Request body is required.' }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    let parsedBody;
+    try {
+      parsedBody = JSON.parse(rawBody);
+    } catch {
+      return new Response(
+        JSON.stringify({ error: 'Invalid JSON body.' }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    const { walletData } = parsedBody;
+    if (!walletData || typeof walletData !== 'object' || !walletData.walletAddress) {
+      return new Response(
+        JSON.stringify({ error: 'walletData with walletAddress is required.' }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
     
     console.log('Received wallet data for analysis:', walletData);
 

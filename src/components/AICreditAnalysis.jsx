@@ -35,12 +35,17 @@ const AICreditAnalysis = ({ walletData, onAnalysisComplete }) => {
         body: { walletData }
       });
 
-      if (error) throw error;
+      if (error) {
+        const backendMessage = error?.context?.error || error?.message;
+        throw new Error(backendMessage || 'Failed to analyze credit profile');
+      }
       
       if (data?.analysis) {
         setAnalysis(data.analysis);
         onAnalysisComplete?.(data.analysis);
         toast.success('AI credit analysis complete!');
+      } else {
+        throw new Error('No analysis returned from backend');
       }
     } catch (error) {
       console.error('Analysis error:', error);
